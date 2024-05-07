@@ -7,6 +7,7 @@ import { updateIsLoadingForm } from '../../../lib/features/login';
 import { register } from '../../../api/auth';
 import { IStatusCode } from '../../../interface/IStatusCode';
 import { updateNotification } from '../../../lib/features/notification';
+import { updateUser } from '../../../lib/features/userSlice';
 
 type FieldType = {
   username?: string;
@@ -25,11 +26,28 @@ const FormRegister: React.FC = () => {
     setIsDisable(isLoadingConnect || isLoadingForm)
   }, [isLoadingConnect, isLoadingForm])
 
+  // const verifyEmail = async (email: string) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `https://apilayer.net/api/check?access_key=98833bace897548419aca3c0efbf5bd1&email=${email}`
+  //     );
+
+  //     const { format_valid, mx_found, smtp_check } = response.data;
+  //     const isValid = format_valid && mx_found && smtp_check;
+
+  //     console.log(format_valid, mx_found, smtp_check)
+  //     setIsValid(isValid);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     if (values.username && values.password && values.email) {
       dispatch(updateIsLoadingForm(true))
       const fetchRegister = await register({ username: values.username, password: values.password, email: values.email })
-      if (fetchRegister.statusCode === IStatusCode.SUCCESS) {
+      if (fetchRegister?.statusCode === IStatusCode.SUCCESS) {
+        dispatch(updateUser({ email: fetchRegister.data.email, username: fetchRegister.data.username }))
         navigate('/')
         dispatch(updateNotification({
           type: 'success',
@@ -55,7 +73,17 @@ const FormRegister: React.FC = () => {
     >
       <Form.Item<FieldType>
         name="username"
-        rules={[{ required: true, message: 'Please input your username!' }]}
+        rules={[
+          { required: true, message: 'Please input your username!' },
+          () => ({
+            validator(_, value) {
+              if (value.replace(/[^a-z0-9]/gi, '') === value) {
+                return Promise.resolve();
+              }
+              return Promise.reject(new Error('Special characters are not allowed in this field.'));
+            },
+          }),
+        ]}
       >
         <Input disabled={isDisable} placeholder="Username" style={{ borderRadius: '50px' }} size="large" prefix={<UserOutlined className='text-primaryBlueDark' style={{ marginLeft: '5px', marginRight: '5px' }} />} />
       </Form.Item>

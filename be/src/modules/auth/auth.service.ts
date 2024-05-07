@@ -43,23 +43,6 @@ export class AuthService {
     }
   }
 
-  async connect(email: string): Promise<any> {
-    try {
-      const users = await this.userService.connectEmail(email);
-
-      if (typeof users === 'string') {
-        return users;
-      }
-
-      const token = await this._createToken(users);
-
-      return { username: users.username, email, ...token };
-    } catch (error) {
-      console.log(error);
-      throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
-    }
-  }
-
   private async _createToken(
     user: User,
     isSecondFactorAuthenticated = false,
@@ -141,5 +124,24 @@ export class AuthService {
       message: 'User information from google',
       user: req.user,
     };
+  }
+
+  async loginGoogle({
+    email,
+    name,
+    image,
+  }: {
+    email: string;
+    name: string;
+    image: string;
+  }): Promise<any> {
+    try {
+      const users = await this.userService.loginGoogle({ email, name, image });
+      const token = await this._createToken(users);
+      return { username: users.username, email: users.email, ...token };
+    } catch (error) {
+      console.log(error);
+      throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
+    }
   }
 }

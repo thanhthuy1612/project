@@ -7,6 +7,7 @@ import { updateIsLoadingForm } from '../../../lib/features/login';
 import { login } from '../../../api/auth';
 import { IStatusCode } from '../../../interface/IStatusCode';
 import { updateNotification } from '../../../lib/features/notification';
+import { updateUser } from '../../../lib/features/userSlice';
 
 type FieldType = {
   email?: string;
@@ -28,7 +29,8 @@ const FormLogin: React.FC = () => {
     if (values.email && values.password) {
       dispatch(updateIsLoadingForm(true))
       const fetchLogin = await login({ email: values.email, password: values.password, isRemember: values.remember })
-      if (fetchLogin.statusCode === IStatusCode.SUCCESS) {
+      if (fetchLogin?.statusCode === IStatusCode.SUCCESS) {
+        dispatch(updateUser({ email: fetchLogin?.data.email, username: fetchLogin.data.username }))
         navigate('/')
         dispatch(updateNotification({
           type: 'success',

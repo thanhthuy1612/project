@@ -1,60 +1,52 @@
 import React from 'react';
-import { Button, List } from "antd"
-import { GoogleOutlined, GithubOutlined } from '@ant-design/icons';
-import { useAppDispatch, useAppSelector } from '../../../lib/hooks';
-import { updateIsLoadingConnect } from '../../../lib/features/login';
-
+import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
+import { google } from '../../../api/auth';
+import config from '../../../ultis/config';
+import { IStatusCode } from '../../../interface/IStatusCode';
+import { useAppDispatch } from '../../../lib/hooks';
+import { updateUser } from '../../../lib/features/userSlice';
+import { useNavigate } from 'react-router-dom';
+import { updateNotification } from '../../../lib/features/notification';
 
 const FooterLogin: React.FC = () => {
-  const { isLoadingConnect, isLoadingForm } = useAppSelector(state => state.login)
   const dispatch = useAppDispatch();
-
-  const onClickButtonSignIn = async (type: string) => {
-    console.log(type)
-    dispatch(updateIsLoadingConnect(true))
+  const navigate = useNavigate()
+  const connectGoogle = async (credentialResponse: any) => {
+    const res = await google(credentialResponse.credential)
+    if (res?.statusCode === IStatusCode.SUCCESS) {
+      dispatch(updateUser({ email: res.data.email, username: res.data.username }))
+      navigate('/')
+      dispatch(updateNotification({
+        type: 'success',
+        description: 'Logged in successfully'
+      }))
+    }
   }
-
-  const data = [
-    {
-      title: 'Continue with Google',
-      icon: GoogleOutlined,
-      className: 'w-[100%] bg-redPastel hover:!bg-redPastel active:!bg-redPastel',
-      onclick: (event: any) => {
-        event.preventDefault();
-        window.location.href = `http://localhost:8000/auth/google/callback`;
-      }
-    },
-    {
-      title: 'Continue with Github',
-      icon: GithubOutlined,
-      className: 'w-[100%] bg-primaryBlack hover:!bg-primaryBlack active:!bg-primaryBlack',
-      onclick: () => onClickButtonSignIn("github")
-    },
-  ]
-
   return (
     <div className='w-[100%] mt-[10px]'>
-      <div className='flex w-[100%] justify-between items-center'>
+      <div className='flex w-[100%] justify-between items-center mb-[15px]'>
         <div className='border-b-[2px] h-[0px] border-primaryBlueDark basis-[45%]'></div>
         <div className='w-[100%] basis-[10%] flex justify-center'>OR</div>
         <div className='border-b-[2px] h-[0px] border-primaryBlueDark basis-[45%]'></div>
       </div>
-      <List
-        dataSource={data}
-        renderItem={(item) => (
-          <List.Item>
-            <Button size='large'
-              type='primary'
-              className={item.className}
-              icon={<item.icon className='mx-[5px]' />}
-              onClick={item.onclick}
-              disabled={isLoadingConnect || isLoadingForm}
-            >
-              {item.title}
-            </Button>
-          </List.Item>
-        )}
-      />
+      <div className='flex justify-center'>
+        <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+          <GoogleLogin
+            width={400}
+            useOneTap
+            onSuccess={connectGoogle}
+            text='continue_with'
+            type='standard'
+            onError={() => {
+              console.log('Login Failed');
+            }}
+            theme='filled_black'
+            size='large'
+            shape='pill'
+            locale='en'
+          />
+        </GoogleOAuthProvider>
+      </div>
     </div>
   )
 }

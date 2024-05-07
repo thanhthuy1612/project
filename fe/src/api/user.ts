@@ -5,11 +5,15 @@ import { url } from './url';
 const path = url.account;
 
 export const getAll: GetStaticProps = async () => {
-  const res = await get(path);
-  return res;
+    const res = await get(path);
+    return res;
 };
 
 export const getUserByEmail = async (email: string) => {
-  const res = await post(`${path}/email`, { email });
-  return res;
+    try {
+        const res = await post(`${path}/email`, { email });
+        return { ...res.data };
+    } catch (err) {
+        console.log(err);
+    }
 };

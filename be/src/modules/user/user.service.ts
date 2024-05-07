@@ -21,19 +21,29 @@ export class UserService {
     }
   }
 
-  async connectEmail(email: string): Promise<User | string> {
+  async loginGoogle({
+    email,
+    name,
+    image,
+  }: {
+    email: string;
+    name: string;
+    image: string;
+  }): Promise<any> {
     try {
       const emailInDb = await this.userModel.find({ email });
-
       if (emailInDb.length > 0) {
         return emailInDb[0];
       }
-
-      // const newUser = await this.userModel.create({ username: email, email });
-      // return newUser;
+      const newUser = await this.userModel.create({
+        username: name,
+        email,
+        ava: image,
+      });
+      return newUser;
     } catch (error) {
       console.log(error);
-      throw new HttpException('Error Connect', HttpStatus.UNAUTHORIZED);
+      throw new HttpException('Error connect google', HttpStatus.UNAUTHORIZED);
     }
   }
 

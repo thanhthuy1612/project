@@ -7,6 +7,12 @@ import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
 import { AuthGuard } from '@nestjs/passport';
 import { getResponseData } from 'src/global/ultis';
 import { LoginDto } from './auth.dto';
+import { OAuth2Client } from 'google-auth-library';
+
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+);
 
 @Controller('auth')
 export class AuthController {
@@ -28,18 +34,6 @@ export class AuthController {
   ): Promise<ResponseData<any>> {
     const result = await this.authService.login(user);
     return getResponseData(result);
-  }
-
-  @Post('connect')
-  async connectEmail(
-    @Body()
-    user: User,
-  ): Promise<ResponseData<any>> {
-    return new ResponseData<User | string>(
-      await this.authService.connect(user?.email),
-      HttpStatus.SUCCESS,
-      HttpMessage.SUCCESS,
-    );
   }
 
   @Post('refresh')
@@ -64,6 +58,22 @@ export class AuthController {
       HttpStatus.SUCCESS,
       HttpMessage.SUCCESS,
     );
+  }
+
+  @Post('/google')
+  async login(@Body('token') token): Promise<any> {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const data = await this.authService.loginGoogle({
+      email: payload.email,
+      name: payload.name,
+      image: payload.picture,
+    });
+    return new ResponseData<any>(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }
 
   @Get('google/callback')

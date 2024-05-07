@@ -9,6 +9,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: process.env.SECRETKEY,
+      origin: ['http://localhost:3000'],
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'HEAD', 'DELETE'],
     });
   }
 

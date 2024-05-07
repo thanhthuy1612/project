@@ -9,6 +9,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <StoreProvider>
     <ConfigProvider
       theme={{
+        components: {
+          Segmented: {
+            itemSelectedBg: '#FBF9F1'
+          },
+          Modal: {
+            contentBg: '#FBF9F1',
+            headerBg: '#FBF9F1'
+          }
+        },
         token: {
           // Seed Token
           colorPrimary: '#388087',

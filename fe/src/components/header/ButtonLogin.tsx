@@ -1,21 +1,69 @@
 import React from 'react';
-import { Avatar, Button, Dropdown, MenuProps } from 'antd';
-import { BellOutlined, HomeOutlined, LoginOutlined, LogoutOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
+import { Avatar, Button, Dropdown, MenuProps, Modal } from 'antd';
+import {
+  BellOutlined,
+  HomeOutlined,
+  LoginOutlined,
+  LogoutOutlined,
+  SettingOutlined,
+  UserOutlined
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../lib/hooks';
+import { googleLogout } from '@react-oauth/google';
+import { resetStateUser, updateUser } from '../../lib/features/userSlice';
+import { getUserByEmail } from '../../api/user';
+import { IStatusCode } from '../../interface/IStatusCode';
+import { updateIsLoadingPage } from '../../lib/features/reload';
+import LoadingSpin from '../loading/LoadingSpin';
 
 const ButtonLogo: React.FC = () => {
   const [isDisable, setIsDisable] = React.useState<boolean>(false)
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
   const navigate = useNavigate()
-  const user = JSON.parse((localStorage.getItem('user') ?? '{}').toString());
+  const { username } = useAppSelector(state => state.user)
+  const { isLoadingPage } = useAppSelector(state => state.reload)
+
+  const dispatch = useAppDispatch();
 
   const onClickLogout = () => {
+    googleLogout();
+    dispatch(resetStateUser());
     localStorage.clear();
+    setModalOpen(false);
+    navigate('/')
   }
+
+  async function isConnected() {
+    dispatch(updateIsLoadingPage(true))
+    const email = localStorage.getItem('email')
+    if (email && localStorage.getItem('token')) {
+      const res = await getUserByEmail(email)
+      if (res?.statusCode === IStatusCode.SUCCESS) {
+        dispatch(updateUser({ email: res.data.email, username: res.data.username }))
+      } else {
+        localStorage.clear()
+      }
+    } else {
+      navigate('/');
+    }
+    dispatch(updateIsLoadingPage(false))
+  }
+
+  window.onload = () => {
+    isConnected();
+  };
 
   const handleMenuClick: MenuProps['onClick'] = (e) => {
     switch (e.key) {
+      case '1':
+        navigate('/profile')
+        break;
+      case '3':
+        navigate('/settings/profile/account')
+        break;
       case '4':
-        onClickLogout();
+        setModalOpen(true)
         break;
     }
   };
@@ -23,8 +71,9 @@ const ButtonLogo: React.FC = () => {
   const items = [
     {
       key: '1',
-      label: user.username,
-      icon: <HomeOutlined />
+      label: username,
+      icon: <HomeOutlined />,
+      onclick: () => { navigate('/profile') }
     },
     {
       key: '2',
@@ -48,23 +97,35 @@ const ButtonLogo: React.FC = () => {
     navigate('/login')
   }
 
+  const renderButtonLogin = () => {
+    return !username ?
+      <Button
+        icon={<LoginOutlined />}
+        disabled={isDisable}
+        onClick={onClickLogin}
+        className=' ring-primaryBlue ring-offset-2 ring m-[10px]'
+      >
+        Login
+      </Button> :
+      <Dropdown menu={{ items, onClick: handleMenuClick, style: { minWidth: '200px', backgroundColor: '#FBF9F1' } }} arrow>
+        <Avatar
+          className=' bg-primaryWhite text-primaryBlueDark m-[10px] ring-primaryBlue ring-offset-2 ring'
+          icon={<UserOutlined />} />
+      </Dropdown>
+  }
+
   return (
     <div className='flex items-center'>
-      {!user.username ?
-        <Button
-          icon={<LoginOutlined />}
-          disabled={isDisable}
-          onClick={onClickLogin}
-          className=' ring-primaryBlue ring-offset-2 ring m-[10px]'
-        >
-          Login
-        </Button> :
-        <Dropdown menu={{ items, onClick: handleMenuClick, style: { minWidth: '200px', backgroundColor: '#FBF9F1' } }} arrow>
-          <Avatar
-            className=' bg-primaryWhite text-primaryBlueDark m-[10px] ring-primaryBlue ring-offset-2 ring'
-            icon={<UserOutlined />} />
-        </Dropdown>
-      }
+      {isLoadingPage ? <LoadingSpin /> : renderButtonLogin()}
+      <Modal
+        title="Confirm logout?"
+        centered
+        open={modalOpen}
+        onOk={onClickLogout}
+        onCancel={() => setModalOpen(false)}
+      >
+        Are you sure you want to log out?
+      </Modal>
     </div>
   );
 }

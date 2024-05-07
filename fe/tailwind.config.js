@@ -23,7 +23,9 @@ export default {
         pinkPastel: '#D49E8D',
         greenPastel:'#A0CF9D',
         yellowPastel:'#FED797',
-        blueDark: '#001C44'
+        blueDark: '#001C44',
+        blueLight: '#D6E7F2',
+        bgColor: '#eeeee9'
       },
       boxShadow: {
         "focus-visible": "none",

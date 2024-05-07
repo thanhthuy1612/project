@@ -21,6 +21,15 @@ export class User extends Document {
   refreshToken: string;
 
   @Prop()
+  ava: string;
+
+  @Prop()
+  banner: string;
+
+  @Prop()
+  bio: string;
+
+  @Prop()
   twoFactorAuthenticationSecret: string;
 
   @Prop()

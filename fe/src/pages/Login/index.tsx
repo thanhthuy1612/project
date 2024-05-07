@@ -8,7 +8,7 @@ import FormRegister from './components/FormRegister';
 import HeaderLogin from './components/HeaderLogin';
 import FooterLogin from './components/FooterLogin';
 
-export enum AuthMenu {
+enum AuthMenu {
   LOGIN = 0,
   REGISTER = 1
 }
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
   const dispatch = useAppDispatch()
   React.useEffect(() => {
     dispatch(resetStateLogin())
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const items: MenuProps['items'] = [
@@ -59,9 +59,19 @@ const Login: React.FC = () => {
   return (
     <div className="flex min-h-screen w-[100%] items-center justify-center bg-cover bg-center bg-primaryBlueLight from-transparent to-black">
       <div className="min-w-[600px] justify-center bg-primaryGrayLight rounded-xl shadow-2xl">
-        <Menu onClick={onClickMenu} style={{ display: 'flex', backgroundColor: 'transparent', borderTopLeftRadius: '0.75rem', borderTopRightRadius: '0.75rem' }} selectedKeys={[auth.toString()]} mode="horizontal" items={items} />
+        <Menu
+          defaultSelectedKeys={[AuthMenu.LOGIN.toString()]}
+          onClick={onClickMenu}
+          style={{ display: 'flex', backgroundColor: 'transparent', borderTopLeftRadius: '0.75rem', borderTopRightRadius: '0.75rem' }}
+          selectedKeys={[auth.toString()]}
+          mode="horizontal"
+          items={items}
+        />
         <div className='flex flex-col my-[50px] mx-[100px] items-center justify-center text-primaryBlueDark'>
-          <HeaderLogin title={auth === AuthMenu.LOGIN ? 'Login' : 'Register'} Component={auth === AuthMenu.LOGIN ? LoginOutlined : UserAddOutlined} />
+          <HeaderLogin
+            title={auth === AuthMenu.LOGIN ? 'Login' : 'Register'}
+            Component={auth === AuthMenu.LOGIN ? LoginOutlined : UserAddOutlined}
+          />
           {renderBody()}
           <FooterLogin />
         </div>
