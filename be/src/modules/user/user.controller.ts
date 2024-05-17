@@ -13,7 +13,7 @@ import { ResponseData } from 'src/global/globalClass';
 import { User } from 'src/models/UserScheme';
 import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
 import { AuthGuard } from '@nestjs/passport';
-import { getResponseData } from 'src/global/ultis';
+import { getResponseData } from 'src/global/utils';
 
 @Controller('user')
 export class UserController {
@@ -47,6 +47,16 @@ export class UserController {
     user: User,
   ): Promise<ResponseData<any>> {
     const result = await this.userService.findByEmail(user.email);
+    return getResponseData(result);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('username')
+  async updateUserByUsername(
+    @Body()
+    user: User,
+  ): Promise<ResponseData<any>> {
+    const result = await this.userService.findAndUpdate(user);
     return getResponseData(result);
   }
 

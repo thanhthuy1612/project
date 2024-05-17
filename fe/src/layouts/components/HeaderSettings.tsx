@@ -5,7 +5,7 @@ export interface IHeaderSettings {
 }
 
 const HeaderSettings: React.FC<IHeaderSettings> = ({ title }) => {
-  return <div className='text-[25px] mb-[20px]'>{title}</div>
+  return <div className='text-[25px] mb-[20px] text-primaryBlueDark'>{title}</div>
 }
 
 export default HeaderSettings

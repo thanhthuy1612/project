@@ -27,6 +27,15 @@ export class User extends Document {
   banner: string;
 
   @Prop()
+  phone: string;
+
+  @Prop()
+  prefix: string;
+
+  @Prop()
+  gender: string;
+
+  @Prop()
   bio: string;
 
   @Prop()

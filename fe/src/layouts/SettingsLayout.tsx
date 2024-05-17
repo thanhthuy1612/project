@@ -15,7 +15,7 @@ import { ItemType } from "antd/es/breadcrumb/Breadcrumb";
 import HeaderSettings from "./components/HeaderSettings";
 
 
-const { Sider, Content } = Layout;
+const { Sider } = Layout;
 export interface ISettingsLayout {
   children: React.ReactNode;
 }
@@ -43,7 +43,7 @@ const SettingsLayout: React.FC<ISettingsLayout> = ({ children }) => {
         },
         {
           key: 'password',
-          label: 'Password',
+          label: 'Password & Email',
           icon: <KeyOutlined />,
           onClick: () => { navigate('/settings/profile/password') }
         },
@@ -94,19 +94,17 @@ const SettingsLayout: React.FC<ISettingsLayout> = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname])
 
-  console.log(selectedMenu)
-
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ height: '100vh', minWidth: '1080px' }}>
       <Header />
       <Layout>
         <Sider
           width={250}
-          style={{ background: colorBgContainer, minHeight: '100%' }}
+          style={{ overflow: 'auto', background: colorBgContainer, minHeight: '100%' }}
         >
           <Menu
             defaultSelectedKeys={[selectedMenu?.key ?? '']}
@@ -117,25 +115,24 @@ const SettingsLayout: React.FC<ISettingsLayout> = ({ children }) => {
             selectedKeys={[selectedMenu?.key ?? '']}
           />
         </Sider>
-        <Layout className=" bg-bgColor px-[24px] pb-[24px]">
+        <Layout className=" bg-bgColor px-[24px] pb-[24px] overflow-auto">
           <Breadcrumb
             className="py-[16px]"
             items={breadcrumb}
           >
           </Breadcrumb>
-          <Content
+          <div
             style={{
               padding: 24,
               margin: 0,
-              minHeight: 280,
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
-              overflow: 'initial'
+              height: '100%'
             }}
           >
             <HeaderSettings title={selectedMenu?.label ?? ''} />
             {children}
-          </Content>
+          </div>
         </Layout>
       </Layout>
     </Layout >

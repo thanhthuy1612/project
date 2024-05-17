@@ -51,7 +51,6 @@ const FormLogin: React.FC = () => {
       style={{ width: "100%" }}
       initialValues={{ remember: true }}
       onFinish={onFinish}
-      autoComplete="off"
     >
       <Form.Item<FieldType>
         name="email"

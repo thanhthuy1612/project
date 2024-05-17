@@ -5,7 +5,7 @@ import { User } from 'src/models/UserScheme';
 import { AuthGuardCustom } from './auth.guard';
 import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
 import { AuthGuard } from '@nestjs/passport';
-import { getResponseData } from 'src/global/ultis';
+import { getResponseData } from 'src/global/utils';
 import { LoginDto } from './auth.dto';
 import { OAuth2Client } from 'google-auth-library';
 

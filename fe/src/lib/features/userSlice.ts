@@ -1,12 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { IUser } from '../../interface/IUser';
 
-export interface UserState {
-    email?: string;
-    username?: string;
-    image?: string;
-}
-
-const initialState: UserState = {
+const initialState: IUser = {
     email: '',
     username: '',
 };
@@ -21,10 +16,8 @@ export const userSlice = createSlice({
         updateUsername: (state, action: PayloadAction<string>) => {
             state.username = action.payload;
         },
-        updateUser: (state, action: PayloadAction<UserState>) => {
-            state.username = action.payload.username;
-            state.email = action.payload.email;
-            state.image = action.payload.image;
+        updateUser: (_state, action: PayloadAction<IUser>) => {
+            return action.payload;
         },
         resetStateUser: () => initialState,
     },

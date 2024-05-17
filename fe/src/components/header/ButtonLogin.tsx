@@ -40,7 +40,7 @@ const ButtonLogo: React.FC = () => {
     if (email && localStorage.getItem('token')) {
       const res = await getUserByEmail(email)
       if (res?.statusCode === IStatusCode.SUCCESS) {
-        dispatch(updateUser({ email: res.data.email, username: res.data.username }))
+        dispatch(updateUser(res.data))
       } else {
         localStorage.clear()
       }
@@ -72,8 +72,7 @@ const ButtonLogo: React.FC = () => {
     {
       key: '1',
       label: username,
-      icon: <HomeOutlined />,
-      onclick: () => { navigate('/profile') }
+      icon: <HomeOutlined />
     },
     {
       key: '2',

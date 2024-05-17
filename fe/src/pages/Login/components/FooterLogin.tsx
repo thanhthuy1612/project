@@ -1,7 +1,7 @@
 import React from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { google } from '../../../api/auth';
-import config from '../../../ultis/config';
+import config from '../../../config';
 import { IStatusCode } from '../../../interface/IStatusCode';
 import { useAppDispatch } from '../../../lib/hooks';
 import { updateUser } from '../../../lib/features/userSlice';

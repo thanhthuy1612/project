@@ -29,6 +29,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           colorTextPlaceholder: '#E5E1DA',
           // Alias Token
           colorBgContainer: '#FBF9F1',
+          colorBgElevated: '#FBF9F1'
         },
       }}
     >

@@ -5,7 +5,7 @@ export interface ReloadState {
 }
 
 const initialState: ReloadState = {
-    isLoadingPage: false,
+    isLoadingPage: true,
 };
 
 export const reloadSlice = createSlice({

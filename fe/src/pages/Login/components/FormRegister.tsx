@@ -35,7 +35,6 @@ const FormRegister: React.FC = () => {
   //     const { format_valid, mx_found, smtp_check } = response.data;
   //     const isValid = format_valid && mx_found && smtp_check;
 
-  //     console.log(format_valid, mx_found, smtp_check)
   //     setIsValid(isValid);
   //   } catch (error) {
   //     console.error(error);

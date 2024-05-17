@@ -4,6 +4,9 @@ import { User } from 'src/models/UserScheme';
 import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from '../auth/auth.dto';
+import { returnUser } from 'src/global/utils';
+import { join } from 'path';
+import { unlink } from 'fs';
 
 @Injectable()
 export class UserService {
@@ -102,13 +105,59 @@ export class UserService {
     }
   }
 
-  async findByEmail(email: string): Promise<User | string> {
+  async findByEmail(email: string): Promise<any> {
     try {
       const findUser = await this.userModel.find({ email });
       if (!findUser) {
         return 'User not found';
       }
-      return findUser[0];
+      return returnUser(findUser[0]);
+    } catch (error) {
+      console.log(error);
+      return 'Error';
+    }
+  }
+
+  deleteImage(imagePath: string): Promise<void> {
+    const fullPath = join(__dirname, '../uploads/', imagePath);
+    return new Promise((resolve, reject) => {
+      unlink(fullPath, (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  async findAndUpdate(user: User): Promise<any> {
+    try {
+      const checkNewUserName = await this.userModel.find({
+        username: user.username,
+      });
+      if (
+        checkNewUserName?.length &&
+        checkNewUserName[0].email !== user.email
+      ) {
+        return 'Username already exists';
+      }
+      const findUser = await this.userModel.findOneAndUpdate(
+        { email: user.email },
+        {
+          ...user,
+        },
+      );
+      if (!findUser) {
+        return 'User not found';
+      }
+      if (findUser?.ava !== user?.ava && findUser?.ava) {
+        this.deleteImage(findUser?.ava);
+      }
+      if (findUser?.banner !== user?.banner && findUser?.banner) {
+        this.deleteImage(findUser?.banner);
+      }
+      return returnUser(user);
     } catch (error) {
       console.log(error);
       return 'Error';

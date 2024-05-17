@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/models/UserScheme';
 import { UserService } from '../user/user.service';
 import { LoginDto } from './auth.dto';
+import { returnUser } from 'src/global/utils';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +37,7 @@ export class AuthService {
 
       const token = await this._createToken(users, false, user.isRemember);
 
-      return { username: users.username, email: users.email, ...token };
+      return { ...returnUser(users), ...token };
     } catch (error) {
       console.log(error);
       throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
@@ -138,7 +139,7 @@ export class AuthService {
     try {
       const users = await this.userService.loginGoogle({ email, name, image });
       const token = await this._createToken(users);
-      return { username: users.username, email: users.email, ...token };
+      return { ...returnUser(users), ...token };
     } catch (error) {
       console.log(error);
       throw new HttpException('Error', HttpStatus.UNAUTHORIZED);

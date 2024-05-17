@@ -6,7 +6,7 @@ export interface IDefaultLayout {
 
 const LoginLayout: React.FC<IDefaultLayout> = ({ children }) => {
   return (
-    <>{children}</>
+    <div className="min-w-[1080px]">{children}</div>
   );
 };
 
