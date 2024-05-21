@@ -70,8 +70,6 @@ export class AuthController {
     const payload = ticket.getPayload();
     const data = await this.authService.loginGoogle({
       email: payload.email,
-      name: payload.name,
-      image: payload.picture,
     });
     return new ResponseData<any>(data, HttpStatus.SUCCESS, HttpMessage.SUCCESS);
   }

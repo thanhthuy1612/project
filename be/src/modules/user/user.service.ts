@@ -7,6 +7,7 @@ import { LoginDto } from '../auth/auth.dto';
 import { returnUser } from 'src/global/utils';
 import { join } from 'path';
 import { unlink } from 'fs';
+import { ChangeEmailDto, ChangePasswordDto } from './user.dto';
 
 @Injectable()
 export class UserService {
@@ -24,24 +25,16 @@ export class UserService {
     }
   }
 
-  async loginGoogle({
-    email,
-    name,
-    image,
-  }: {
-    email: string;
-    name: string;
-    image: string;
-  }): Promise<any> {
+  async loginGoogle({ email }: { email: string }): Promise<any> {
     try {
       const emailInDb = await this.userModel.find({ email });
       if (emailInDb.length > 0) {
         return emailInDb[0];
       }
       const newUser = await this.userModel.create({
-        username: name,
+        username: email.split('@')[0],
         email,
-        ava: image,
+        timeJoin: new Date(),
       });
       return newUser;
     } catch (error) {
@@ -63,22 +56,100 @@ export class UserService {
       });
 
       if (userInDb.length > 0 && emailInDb.length > 0) {
-        return 'User and email already exists';
+        return 'User and email already exists.';
       }
 
       if (userInDb.length > 0) {
-        return 'User already exists';
+        return 'User already exists.';
       }
 
       if (emailInDb.length > 0) {
-        return 'Email already exists';
+        return 'Email already exists.';
       }
 
-      const newUser = await this.userModel.create(user);
+      const newUser = await this.userModel.create({
+        ...user,
+        timeJoin: new Date(),
+      });
       return newUser;
     } catch (error) {
       console.log(error);
       throw new HttpException('Error create account', HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  async changePassword(user: ChangePasswordDto): Promise<any> {
+    try {
+      const emailInDb = await this.userModel.find({
+        email: user.email,
+      });
+
+      if (!emailInDb.length) {
+        return 'Email not found.';
+      }
+
+      if (emailInDb[0]?.password) {
+        const is_equal = bcrypt.compareSync(
+          user.oldPassword,
+          emailInDb[0].password,
+        );
+
+        if (!is_equal) {
+          return 'The password you entered is incorrect.';
+        }
+      }
+
+      const password = await bcrypt.hash(user.newPassword, 10);
+      const findUser = await this.userModel.findOneAndUpdate(
+        { email: user.email },
+        { password },
+      );
+      findUser.password = password;
+      return returnUser(findUser);
+    } catch (error) {
+      console.log(error);
+      throw new HttpException('Error Login', HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  async changeEmail(user: ChangeEmailDto): Promise<any> {
+    try {
+      const userInDb = await this.userModel.find({
+        email: user.username,
+      });
+
+      if (userInDb.length && userInDb[0].email === user.email) {
+        return 'The email you entered is same the old email.';
+      }
+
+      const emailInDb = await this.userModel.find({
+        email: user.email,
+      });
+
+      if (emailInDb.length) {
+        return 'Email already exists.';
+      }
+
+      if (userInDb[0]?.password) {
+        const is_equal = bcrypt.compareSync(
+          user.password,
+          userInDb[0].password,
+        );
+
+        if (!is_equal) {
+          return 'The password you entered is incorrect.';
+        }
+      }
+
+      const findUser = await this.userModel.findOneAndUpdate(
+        { username: user.username },
+        { email: user.email },
+      );
+      findUser.email = user.email;
+      return returnUser(findUser);
+    } catch (error) {
+      console.log(error);
+      throw new HttpException('Error Login', HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -89,13 +160,13 @@ export class UserService {
       });
 
       if (!emailInDb.length) {
-        return 'Email not found';
+        return 'Email not found.';
       }
 
       const is_equal = bcrypt.compareSync(user.password, emailInDb[0].password);
 
       if (!is_equal) {
-        return 'Invalid credentials';
+        return 'Invalid credentials.';
       }
 
       return emailInDb[0];
@@ -109,7 +180,7 @@ export class UserService {
     try {
       const findUser = await this.userModel.find({ email });
       if (!findUser) {
-        return 'User not found';
+        return 'User not found.';
       }
       return returnUser(findUser[0]);
     } catch (error) {
@@ -140,7 +211,7 @@ export class UserService {
         checkNewUserName?.length &&
         checkNewUserName[0].email !== user.email
       ) {
-        return 'Username already exists';
+        return 'Username already exists.';
       }
       const findUser = await this.userModel.findOneAndUpdate(
         { email: user.email },
@@ -149,7 +220,7 @@ export class UserService {
         },
       );
       if (!findUser) {
-        return 'User not found';
+        return 'User not found.';
       }
       if (findUser?.ava !== user?.ava && findUser?.ava) {
         this.deleteImage(findUser?.ava);
@@ -160,7 +231,7 @@ export class UserService {
       return returnUser(user);
     } catch (error) {
       console.log(error);
-      return 'Error';
+      throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
     }
   }
 

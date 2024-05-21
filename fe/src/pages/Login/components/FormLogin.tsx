@@ -30,7 +30,7 @@ const FormLogin: React.FC = () => {
       dispatch(updateIsLoadingForm(true))
       const fetchLogin = await login({ email: values.email, password: values.password, isRemember: values.remember })
       if (fetchLogin?.statusCode === IStatusCode.SUCCESS) {
-        dispatch(updateUser({ email: fetchLogin?.data.email, username: fetchLogin.data.username }))
+        dispatch(updateUser(fetchLogin?.data))
         navigate('/')
         dispatch(updateNotification({
           type: 'success',

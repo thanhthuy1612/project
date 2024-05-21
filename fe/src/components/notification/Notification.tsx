@@ -1,7 +1,7 @@
 import React from 'react';
 import { notification } from 'antd';
-import { useAppDispatch, useAppSelector } from '../lib/hooks';
-import { resetStateNotification } from '../lib/features/notification';
+import { useAppDispatch, useAppSelector } from '../../lib/hooks';
+import { resetStateNotification } from '../../lib/features/notification';
 import { CheckCircleFilled, ExclamationCircleFilled, InfoCircleFilled } from '@ant-design/icons';
 
 

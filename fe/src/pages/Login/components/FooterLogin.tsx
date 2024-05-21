@@ -14,7 +14,7 @@ const FooterLogin: React.FC = () => {
   const connectGoogle = async (credentialResponse: any) => {
     const res = await google(credentialResponse.credential)
     if (res?.statusCode === IStatusCode.SUCCESS) {
-      dispatch(updateUser({ email: res.data.email, username: res.data.username }))
+      dispatch(updateUser(res.data))
       navigate('/')
       dispatch(updateNotification({
         type: 'success',

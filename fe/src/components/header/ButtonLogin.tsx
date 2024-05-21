@@ -21,7 +21,7 @@ const ButtonLogo: React.FC = () => {
   const [isDisable, setIsDisable] = React.useState<boolean>(false)
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
   const navigate = useNavigate()
-  const { username } = useAppSelector(state => state.user)
+  const { username, ava } = useAppSelector(state => state.user)
   const { isLoadingPage } = useAppSelector(state => state.reload)
 
   const dispatch = useAppDispatch();
@@ -109,6 +109,7 @@ const ButtonLogo: React.FC = () => {
       <Dropdown menu={{ items, onClick: handleMenuClick, style: { minWidth: '200px', backgroundColor: '#FBF9F1' } }} arrow>
         <Avatar
           className=' bg-primaryWhite text-primaryBlueDark m-[10px] ring-primaryBlue ring-offset-2 ring'
+          src={ava}
           icon={<UserOutlined />} />
       </Dropdown>
   }

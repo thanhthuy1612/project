@@ -46,7 +46,7 @@ const FormRegister: React.FC = () => {
       dispatch(updateIsLoadingForm(true))
       const fetchRegister = await register({ username: values.username, password: values.password, email: values.email })
       if (fetchRegister?.statusCode === IStatusCode.SUCCESS) {
-        dispatch(updateUser({ email: fetchRegister.data.email, username: fetchRegister.data.username }))
+        dispatch(updateUser(fetchRegister.data))
         navigate('/')
         dispatch(updateNotification({
           type: 'success',

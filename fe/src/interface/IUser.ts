@@ -9,4 +9,5 @@ export interface IUser {
     bio?: string;
     timeJoin?: Date;
     password?: string;
+    havePassword?: boolean;
 }

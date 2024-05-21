@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client'
 import { ConfigProvider } from "antd";
-import Notification from "./components/Notification.tsx"
+import Notification from "./components/notification/Notification.tsx"
 import App from './App.tsx'
 import './index.css'
 import StoreProvider from './StoreProvider.tsx'

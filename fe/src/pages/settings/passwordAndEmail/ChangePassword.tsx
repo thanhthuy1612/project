@@ -1,5 +1,11 @@
 import { Button, Form, FormProps, Input } from 'antd';
 import React from 'react';
+import { useAppDispatch, useAppSelector } from '../../../lib/hooks';
+import { changePassword } from '../../../api/user';
+import { IStatusCode } from '../../../interface/IStatusCode';
+import { updateNotification } from '../../../lib/features/notification';
+import { useNavigate } from 'react-router-dom';
+import { updateUser } from '../../../lib/features/userSlice';
 
 type FieldType = {
   oldPassword?: string;
@@ -8,12 +14,40 @@ type FieldType = {
 };
 
 const ChangePassword: React.FC = () => {
-  const [isDisable, setIsDisable] = React.useState<boolean>(false)
+  const [isDisable, setIsDisable] = React.useState<boolean>(false);
+  const { havePassword, email } = useAppSelector(state => state.user);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     setIsDisable(true)
-    console.log(values)
+    if (values?.newPassword && email) {
+      const res = await changePassword(
+        {
+          oldPassword: values?.oldPassword,
+          newPassword: values?.newPassword,
+          email
+        }
+      );
+      console.log(res)
+      if (res?.statusCode === IStatusCode.SUCCESS) {
+        dispatch(updateUser(res.data))
+        navigate('/')
+        dispatch(updateNotification({
+          type: 'success',
+          description: 'Change password successfully'
+        }))
+      } else {
+        navigate('/')
+        dispatch(updateNotification({
+          type: 'fail',
+          description: res.data
+        }))
+      }
+    }
     setIsDisable(false)
   };
+
   return <Form
     name="register"
     style={{ width: 500 }}
@@ -21,18 +55,28 @@ const ChangePassword: React.FC = () => {
     layout='vertical'
     autoComplete="off"
   >
-    <Form.Item<FieldType>
+    {havePassword && <Form.Item<FieldType>
       name="oldPassword"
       label="Old Password:"
       rules={[{ required: true, message: 'Please input your old password!' }]}
     >
       <Input.Password disabled={isDisable} placeholder="Input your old password" />
-    </Form.Item>
+    </Form.Item>}
 
     <Form.Item<FieldType>
       name="newPassword"
       label="New Password:"
-      rules={[{ required: true, message: 'Please input your new password!' }]}
+      rules={[
+        { required: true, message: 'Please input your new password!' },
+        ({ getFieldValue }) => ({
+          validator(_, value) {
+            if (!value || getFieldValue('oldPassword') !== value) {
+              return Promise.resolve();
+            }
+            return Promise.reject(new Error('The new password must be different from the old password!'));
+          },
+        }),
+      ]}
     >
       <Input.Password disabled={isDisable} placeholder="Input your new password" />
     </Form.Item>
@@ -46,7 +90,7 @@ const ChangePassword: React.FC = () => {
         },
         ({ getFieldValue }) => ({
           validator(_, value) {
-            if (!value || getFieldValue('password') === value) {
+            if (!value || getFieldValue('newPassword') === value) {
               return Promise.resolve();
             }
             return Promise.reject(new Error('The new password that you entered do not match!'));
@@ -58,7 +102,7 @@ const ChangePassword: React.FC = () => {
     </Form.Item>
 
     <Form.Item >
-      <Button type="primary" htmlType="submit">
+      <Button loading={isDisable} disabled={isDisable} type="primary" htmlType="submit">
         Submit
       </Button>
     </Form.Item>

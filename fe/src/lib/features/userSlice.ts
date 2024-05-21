@@ -1,9 +1,11 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import { IUser } from '../../interface/IUser';
+import { urlImg } from '../../api/url';
 
 const initialState: IUser = {
     email: '',
     username: '',
+    havePassword: false
 };
 
 export const userSlice = createSlice({
@@ -17,7 +19,13 @@ export const userSlice = createSlice({
             state.username = action.payload;
         },
         updateUser: (_state, action: PayloadAction<IUser>) => {
-            return action.payload;
+            const ava = action.payload?.ava;
+            const banner = action.payload?.banner;
+            return {
+                ...action.payload,
+                ava: ava ? `${urlImg}${ava}` : undefined,
+                banner: banner ? `${urlImg}${banner}` : undefined,
+            };
         },
         resetStateUser: () => initialState,
     },

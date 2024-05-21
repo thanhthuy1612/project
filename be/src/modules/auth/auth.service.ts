@@ -20,7 +20,7 @@ export class AuthService {
         return users;
       }
       const token = await this._createToken(users);
-      return { username: users.username, email: users.email, ...token };
+      return { ...returnUser(users), ...token };
     } catch (error) {
       console.log(error);
       throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
@@ -127,17 +127,9 @@ export class AuthService {
     };
   }
 
-  async loginGoogle({
-    email,
-    name,
-    image,
-  }: {
-    email: string;
-    name: string;
-    image: string;
-  }): Promise<any> {
+  async loginGoogle({ email }: { email: string }): Promise<any> {
     try {
-      const users = await this.userService.loginGoogle({ email, name, image });
+      const users = await this.userService.loginGoogle({ email });
       const token = await this._createToken(users);
       return { ...returnUser(users), ...token };
     } catch (error) {

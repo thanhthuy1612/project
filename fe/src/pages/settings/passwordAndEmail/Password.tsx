@@ -3,9 +3,11 @@ import ChangePassword from './ChangePassword';
 import ChangeEmail from './ChangeEmail';
 import { Collapse, CollapseProps, theme } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
+import { useAppSelector } from '../../../lib/hooks';
 
 const Password: React.FC = () => {
-  const [activeKey, setActiveKey] = React.useState<string[]>(['1'])
+  const [activeKey, setActiveKey] = React.useState<string[]>([])
+  const { isLoadingPage } = useAppSelector(state => state.reload);
   const { token } = theme.useToken();
 
   const getItems: (panelStyle: CSSProperties) => CollapseProps['items'] = (panelStyle) => [
@@ -40,8 +42,8 @@ const Password: React.FC = () => {
 
   return (
     <Collapse
+      collapsible={isLoadingPage ? 'disabled' : undefined}
       bordered={false}
-      defaultActiveKey={['1']}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
       items={getItems(panelStyle)}
       activeKey={activeKey}

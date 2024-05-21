@@ -44,6 +44,7 @@ const optionsPhone = [
 
 const PublicProfile: React.FC = () => {
   const { username, phone, prefix, gender, bio, email, ava, banner } = useAppSelector(state => state.user);
+  const { isLoadingPage } = useAppSelector(state => state.reload);
 
   const [previewOpen, setPreviewOpen] = React.useState(false);
   const [previewImage, setPreviewImage] = React.useState('');
@@ -53,7 +54,7 @@ const PublicProfile: React.FC = () => {
         uid: '-1',
         name: ava,
         status: 'done',
-        url: `${urlImg}${ava}`,
+        url: ava,
       }]
       :
       []);
@@ -63,7 +64,7 @@ const PublicProfile: React.FC = () => {
         uid: '-1',
         name: banner,
         status: 'done',
-        url: `${urlImg}${banner}`,
+        url: banner,
       }]
       :
       []);
@@ -72,7 +73,6 @@ const PublicProfile: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   const [form] = Form.useForm();
-  const { isLoadingPage } = useAppSelector(state => state.reload);
   const navigate = useNavigate()
 
   const dispatch = useAppDispatch();
@@ -83,7 +83,7 @@ const PublicProfile: React.FC = () => {
           uid: '-1',
           name: ava,
           status: 'done',
-          url: `${urlImg}${ava}`,
+          url: ava,
         }])
       }
       if (banner) {
@@ -91,7 +91,7 @@ const PublicProfile: React.FC = () => {
           uid: '-1',
           name: banner,
           status: 'done',
-          url: `${urlImg}${banner}`,
+          url: banner,
         }])
       }
     }
@@ -156,6 +156,11 @@ const PublicProfile: React.FC = () => {
 
   const uploadImg = async (urlOld: string | undefined, isChange: boolean, fileList: UploadFile[]) => {
     let url: string | undefined = urlOld
+    console.log(isChange, urlOld)
+    if (!isChange) {
+      console.log(urlOld?.split(urlImg))
+      return urlOld?.split(urlImg)[1]
+    }
     if (fileList.length > 0 && isChange) {
       const res = await uploadFile((fileList[0] as UploadFile).originFileObj as File)
       url = res?.data?.filename

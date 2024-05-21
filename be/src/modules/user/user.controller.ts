@@ -14,6 +14,7 @@ import { User } from 'src/models/UserScheme';
 import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
 import { AuthGuard } from '@nestjs/passport';
 import { getResponseData } from 'src/global/utils';
+import { ChangeEmailDto, ChangePasswordDto } from './user.dto';
 
 @Controller('user')
 export class UserController {
@@ -57,6 +58,26 @@ export class UserController {
     user: User,
   ): Promise<ResponseData<any>> {
     const result = await this.userService.findAndUpdate(user);
+    return getResponseData(result);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('change/password')
+  async updatePassword(
+    @Body()
+    user: ChangePasswordDto,
+  ): Promise<ResponseData<any>> {
+    const result = await this.userService.changePassword(user);
+    return getResponseData(result);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('change/email')
+  async updateEmail(
+    @Body()
+    user: ChangeEmailDto,
+  ): Promise<ResponseData<any>> {
+    const result = await this.userService.changeEmail(user);
     return getResponseData(result);
   }
 

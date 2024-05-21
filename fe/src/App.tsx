@@ -6,6 +6,10 @@ import DefaultLayout from "./layouts/DefaultLayout";
 import "./App.css";
 
 const routers = () => {
+  const isLogin: boolean = Boolean(localStorage.getItem('token'))
+  if (!isLogin) {
+    return publicRoutes;
+  }
   return [...publicRoutes, ...privateRoutes];
 };
 const App: React.FC = () => {

@@ -1,9 +1,9 @@
 import { IRouter } from '../interface/IRouter';
 import LoginLayout from '../layouts/LoginLayout';
 import SettingsLayout from '../layouts/SettingsLayout';
-import Home from '../pages/Home';
+import Home from '../pages/home/Home';
 import Login from '../pages/Login';
-import Profile from '../pages/Profile';
+import Profile from '../pages/profile/Profile';
 import AccountSupport from '../pages/settings/AccountSupport';
 import Developer from '../pages/settings/Developer';
 import Notification from '../pages/settings/Notification';

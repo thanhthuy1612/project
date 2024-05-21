@@ -19,5 +19,7 @@ export const returnUser = (value: User) => {
     phone: value?.phone,
     prefix: value?.prefix,
     bio: value?.bio,
+    havePassword: Boolean(value?.password),
+    timeJoin: value?.timeJoin,
   };
 };
