@@ -17,11 +17,12 @@ export interface IProfileInfoProps {
 const ProfileInfo: React.FC<IProfileInfoProps> = (
   { username, email, timeJoin, gender, bio, phone, prefix }
 ) => {
+  const [activeKey, setActiveKey] = React.useState<string[]>(['1'])
 
   const { token } = theme.useToken();
 
   const panelStyle: React.CSSProperties = {
-    marginBottom: 24,
+    // marginBottom: 24,
     background: token.colorFillAlter,
     borderRadius: token.borderRadiusLG,
     border: 'none',
@@ -59,10 +60,18 @@ const ProfileInfo: React.FC<IProfileInfoProps> = (
     },
   ];
 
+  const handleChange = (key: string | string[]) => {
+    if (!key.length) {
+      setActiveKey([])
+      return
+    }
+    setActiveKey([key[key.length - 1]])
+  }
+
   const renderDescription = () => (
     <Descriptions
       items={items}
-      bordered={false}
+      bordered
       layout='horizontal'
       column={1}
     />
@@ -70,14 +79,21 @@ const ProfileInfo: React.FC<IProfileInfoProps> = (
 
   return (
     <Collapse
-      bordered={false}
-      className='mt-[120px] shadow-md'
-      // style={{ background: token.colorBgContainer }}
+      bordered
+      className='shadow-md'
+      activeKey={activeKey}
+      onChange={handleChange}
       expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
       items={[
         {
           key: '1',
           label: "User Info",
+          children: renderDescription(),
+          style: panelStyle,
+        },
+        {
+          key: '2',
+          label: "Friends",
           children: renderDescription(),
           style: panelStyle,
         },

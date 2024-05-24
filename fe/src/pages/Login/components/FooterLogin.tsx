@@ -7,6 +7,7 @@ import { useAppDispatch } from '../../../lib/hooks';
 import { updateUser } from '../../../lib/features/userSlice';
 import { useNavigate } from 'react-router-dom';
 import { updateNotification } from '../../../lib/features/notification';
+import { Flex } from 'antd';
 
 const FooterLogin: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -24,12 +25,12 @@ const FooterLogin: React.FC = () => {
   }
   return (
     <div className='w-[100%] mt-[10px]'>
-      <div className='flex w-[100%] justify-between items-center mb-[15px]'>
+      <Flex className='w-[100%] justify-between items-center mb-[15px]'>
         <div className='border-b-[2px] h-[0px] border-primaryBlueDark basis-[45%]'></div>
         <div className='w-[100%] basis-[10%] flex justify-center'>OR</div>
         <div className='border-b-[2px] h-[0px] border-primaryBlueDark basis-[45%]'></div>
-      </div>
-      <div className='flex justify-center'>
+      </Flex>
+      <Flex className='justify-center'>
         <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
           <GoogleLogin
             width={400}
@@ -46,7 +47,7 @@ const FooterLogin: React.FC = () => {
             locale='en'
           />
         </GoogleOAuthProvider>
-      </div>
+      </Flex>
     </div>
   )
 }

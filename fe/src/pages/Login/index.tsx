@@ -1,5 +1,5 @@
 import React from 'react';
-import { Menu, type MenuProps } from 'antd';
+import { Flex, Menu, type MenuProps } from 'antd';
 import { LoginOutlined, UserAddOutlined } from '@ant-design/icons';
 import { useAppDispatch } from '../../lib/hooks';
 import { resetStateLogin } from '../../lib/features/login';
@@ -57,8 +57,8 @@ const Login: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen w-[100%] items-center justify-center bg-cover bg-center bg-primaryBlueLight from-transparent to-black">
-      <div className="min-w-[600px] justify-center bg-primaryGrayLight rounded-xl shadow-2xl">
+    <Flex className="min-h-screen w-[100%] items-center justify-center bg-cover bg-center bg-primaryBlueLight from-transparent to-black">
+      <div className="min-w-[600px] bg-primaryGrayLight rounded-xl shadow-2xl">
         <Menu
           defaultSelectedKeys={[AuthMenu.LOGIN.toString()]}
           onClick={onClickMenu}
@@ -67,16 +67,16 @@ const Login: React.FC = () => {
           mode="horizontal"
           items={items}
         />
-        <div className='flex flex-col my-[50px] mx-[100px] items-center justify-center text-primaryBlueDark'>
+        <Flex className=' flex-col my-[50px] mx-[100px] items-center justify-center text-primaryBlueDark'>
           <HeaderLogin
             title={auth === AuthMenu.LOGIN ? 'Login' : 'Register'}
             Component={auth === AuthMenu.LOGIN ? LoginOutlined : UserAddOutlined}
           />
           {renderBody()}
           <FooterLogin />
-        </div>
+        </Flex>
       </div>
-    </div>
+    </Flex>
   );
 }
 

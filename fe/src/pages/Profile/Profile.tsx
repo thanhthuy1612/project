@@ -7,7 +7,11 @@ const Profile: React.FC = () => {
   const { ava, banner, username, email, timeJoin, gender, bio, phone, prefix } = useAppSelector(state => state.user);
   return (
     <div className='m-[20px]'>
-      <ProfileImg ava={ava} banner={banner} />
+      <ProfileImg
+        ava={ava}
+        banner={banner}
+        username={username}
+      />
       <ProfileInfo
         username={username}
         email={email}
