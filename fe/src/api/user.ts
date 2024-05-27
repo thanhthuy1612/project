@@ -3,7 +3,6 @@ import { url } from './url';
 import { IUser } from '../interface/IUser';
 import { IChangePassword } from '../interface/IChangePassword';
 import { IChangeEmail } from '../interface/IChangeEmail';
-import { IStatusCode } from '../interface/IStatusCode';
 
 const path = url.account;
 

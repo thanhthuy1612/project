@@ -14,7 +14,7 @@ export class AuthService {
 
   async register(user: User): Promise<any> {
     try {
-      const users = await this.userService.create(user);
+      const users = await this.userService.createUser(user);
 
       if (typeof users === 'string') {
         return users;

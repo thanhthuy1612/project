@@ -8,21 +8,15 @@ import { returnUser } from 'src/global/utils';
 import { join } from 'path';
 import { unlink } from 'fs';
 import { ChangeEmailDto, ChangePasswordDto } from './user.dto';
+import { BaseService } from 'src/base/base.service';
 
 @Injectable()
-export class UserService {
+export class UserService extends BaseService<User> {
   constructor(
     @InjectModel(User.name)
     private userModel: mongoose.Model<User>,
-  ) {}
-  async findAll(): Promise<User[]> {
-    try {
-      const users = await this.userModel.find();
-      return users;
-    } catch (error) {
-      console.log(error);
-      throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
-    }
+  ) {
+    super(userModel);
   }
 
   async loginGoogle({ email }: { email: string }): Promise<any> {
@@ -43,7 +37,7 @@ export class UserService {
     }
   }
 
-  async create(user: User): Promise<User | string> {
+  async createUser(user: User): Promise<User | string> {
     try {
       user.password = await bcrypt.hash(user.password, 10);
 
@@ -257,36 +251,6 @@ export class UserService {
         },
       );
       return findUser;
-    } catch (error) {
-      console.log(error);
-      throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
-    }
-  }
-
-  async findById(id: string): Promise<User> {
-    try {
-      const user = await this.userModel.findById(id);
-      return user;
-    } catch (error) {
-      console.log(error);
-      throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
-    }
-  }
-
-  async update(id: string, user): Promise<User> {
-    try {
-      const newUser = await this.userModel.findByIdAndUpdate(id, user);
-      return newUser;
-    } catch (error) {
-      console.log(error);
-      throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
-    }
-  }
-
-  async delete(id: string): Promise<User> {
-    try {
-      const user = await this.userModel.findByIdAndDelete(id);
-      return user;
     } catch (error) {
       console.log(error);
       throw new HttpException('Error', HttpStatus.UNAUTHORIZED);
