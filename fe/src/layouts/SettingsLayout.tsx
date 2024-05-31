@@ -115,7 +115,7 @@ const SettingsLayout: React.FC<ISettingsLayout> = ({ children }) => {
             selectedKeys={[selectedMenu?.key ?? '']}
           />
         </Sider>
-        <Layout className=" bg-bgColor px-[24px] pb-[24px] overflow-auto">
+        <Layout className=" bg-bgColor px-[24px] pb-[24px] overflow-auto h-[100%] flex flex-col justify-around">
           <Breadcrumb
             className="py-[16px]"
             items={breadcrumb}
@@ -127,7 +127,8 @@ const SettingsLayout: React.FC<ISettingsLayout> = ({ children }) => {
               margin: 0,
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
-              height: '100%'
+              height: '90%',
+              overflow: 'auto'
             }}
           >
             <HeaderSettings title={selectedMenu?.label ?? ''} />

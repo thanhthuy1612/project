@@ -1,4 +1,4 @@
-import { DateFormatType } from "../interface/IRouter";
+import { DateFormatType } from '../interface/IRouter';
 
 export const getDate = (day: Date, time: Date) => {
     day.setHours(time.getHours(), time.getMinutes(), time.getSeconds());
@@ -9,9 +9,10 @@ export const getDateTime = (day: Date) => {
     return day.getTime();
 };
 
-export const dateFormat = (date: Date, format: DateFormatType) => {
+export const dateFormat = (date: Date, format?: DateFormatType) => {
+    let formatDate = format ?? DateFormatType.FullDate;
     const time: Date = new Date(date);
-    const formattedDate = time.toLocaleString('en-US', getDateFormatByLocale(format));
+    const formattedDate = time.toLocaleString('en-US', getDateFormatByLocale(formatDate));
     return formattedDate;
 };
 

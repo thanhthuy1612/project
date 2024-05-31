@@ -62,6 +62,16 @@ export class UserController {
   }
 
   @UseGuards(AuthGuard('jwt'))
+  @Post('chats')
+  async getChats(
+    @Body()
+    user: User,
+  ): Promise<ResponseData<any>> {
+    const result = await this.userService.findMessageByEmail(user?.email);
+    return getResponseData(result);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
   @Post('change/password')
   async updatePassword(
     @Body()

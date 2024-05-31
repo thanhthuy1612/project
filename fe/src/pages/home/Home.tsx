@@ -2,17 +2,21 @@ import React from 'react';
 import io, { Socket } from "socket.io-client"
 import MessageInput from './MessageInput';
 import Message from './Message';
+import { IMessage } from '../../interface/IMessage';
+import { useAppSelector } from '../../lib/hooks';
 
 const Home: React.FC = () => {
-  const [socket, setSocket] = React.useState<Socket>()
-  const [messages, setMessages] = React.useState<string[]>([])
+  const [socket, setSocket] = React.useState<Socket>();
+  const [messages, setMessages] = React.useState<IMessage[]>([]);
+
+  const { username } = useAppSelector(state => state.user)
 
   React.useEffect(() => {
     const newSocket = io("http://localhost:8001")
     setSocket(newSocket)
   }, [setSocket])
 
-  const messageListener = (message: string) => {
+  const messageListener = (message: IMessage) => {
     setMessages([...messages, message])
   }
 
@@ -24,7 +28,11 @@ const Home: React.FC = () => {
   }, [messageListener])
 
   const send = (value: string) => {
-    socket?.emit("message", value)
+    const message: IMessage = {
+      from: username,
+      message: value
+    }
+    socket?.emit("message", message)
   }
 
   return (

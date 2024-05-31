@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { FriendsDTO } from 'src/modules/user/user.dto';
 
 @Schema({
   timestamps: true,
@@ -37,6 +38,12 @@ export class User extends Document {
 
   @Prop()
   bio: string;
+
+  @Prop()
+  friends: FriendsDTO[];
+
+  @Prop()
+  chats: string[];
 
   @Prop()
   twoFactorAuthenticationSecret: string;

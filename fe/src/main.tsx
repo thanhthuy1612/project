@@ -16,6 +16,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           Modal: {
             contentBg: '#FBF9F1',
             headerBg: '#FBF9F1'
+          },
+          Menu: {
+            itemSelectedBg: '#E5E1DA'
           }
         },
         token: {
@@ -23,13 +26,12 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           colorPrimary: '#388087',
           colorBorderBg: '#388087',
           colorIcon: '#388087',
-          colorBgTextHover: '#6FB3B8',
           colorTextBase: '#388087',
           colorError: '#FF6961',
           colorTextPlaceholder: '#E5E1DA',
           // Alias Token
           colorBgContainer: '#FBF9F1',
-          colorBgElevated: '#FBF9F1'
+          colorBgElevated: '#FBF9F1',
         },
       }}
     >

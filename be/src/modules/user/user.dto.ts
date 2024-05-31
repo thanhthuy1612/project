@@ -9,3 +9,9 @@ export class ChangeEmailDto {
   password: string;
   username: string;
 }
+
+export class FriendsDTO {
+  username: string;
+  messageID: string;
+  createAt: Date;
+}

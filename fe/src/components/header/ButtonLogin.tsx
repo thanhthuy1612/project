@@ -6,7 +6,8 @@ import {
   LoginOutlined,
   LogoutOutlined,
   SettingOutlined,
-  UserOutlined
+  UserOutlined,
+  MessageOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../lib/hooks';
@@ -59,10 +60,16 @@ const ButtonLogo: React.FC = () => {
       case '1':
         navigate('/profile')
         break;
+      case '2':
+        navigate('/message')
+        break;
       case '3':
-        navigate('/settings/profile/account')
+        navigate('/notification')
         break;
       case '4':
+        navigate('/settings/profile/account')
+        break;
+      case '5':
         setModalOpen(true)
         break;
     }
@@ -76,16 +83,21 @@ const ButtonLogo: React.FC = () => {
     },
     {
       key: '2',
+      label: 'Message',
+      icon: <MessageOutlined />
+    },
+    {
+      key: '3',
       label: 'Notification',
       icon: <BellOutlined />
     },
     {
-      key: '3',
+      key: '4',
       label: 'Settings',
       icon: <SettingOutlined />
     },
     {
-      key: '4',
+      key: '5',
       label: 'Logout',
       icon: <LogoutOutlined />
     },
@@ -110,7 +122,8 @@ const ButtonLogo: React.FC = () => {
         <Avatar
           className=' bg-primaryWhite text-primaryBlueDark m-[10px] ring-primaryBlue ring-offset-2 ring'
           src={ava}
-          icon={<UserOutlined />} />
+          icon={<UserOutlined />}
+        />
       </Dropdown>
   }
 

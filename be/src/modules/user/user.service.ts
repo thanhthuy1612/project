@@ -170,6 +170,16 @@ export class UserService extends BaseService<User> {
     }
   }
 
+  async findMessageByEmail(email: string): Promise<any> {
+    try {
+      const findUser = await this.userModel.find({ email });
+      return findUser[0]?.chats;
+    } catch (error) {
+      console.log(error);
+      return 'Error';
+    }
+  }
+
   async findByEmail(email: string): Promise<any> {
     try {
       const findUser = await this.userModel.find({ email });

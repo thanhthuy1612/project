@@ -1,13 +1,14 @@
 import React from 'react';
+import { IMessage } from '../../interface/IMessage';
 
 export interface IMessageProps {
-  messages: string[]
+  messages: IMessage[]
 }
 const Message: React.FC<IMessageProps> = ({ messages }) => {
   return (
     <div>
-      {messages.map((message: string, index: number) => (
-        <div key={index}>{message}</div>
+      {messages.map((message: IMessage, index: number) => (
+        <div key={index}>{message.message}</div>
       ))}
     </div>
   )

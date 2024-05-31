@@ -10,6 +10,12 @@ export class Chat extends Document {
   listUser: string[];
 
   @Prop()
+  name: string;
+
+  @Prop()
+  image: string;
+
+  @Prop()
   message: MessageDTO[];
 
   @Prop()
