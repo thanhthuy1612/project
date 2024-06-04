@@ -30,17 +30,17 @@ export const get = async (path: string, options = {}) => {
 
 export const update = async (path: string, options = {}) => {
     const response = await request.put(path, options);
-    return response;
+    return response.data;
 };
 
 export const post = async (path: string, options = {}) => {
     const response = await request.post(path, options);
-    return response;
+    return response.data;
 };
 
 export const del = async (path: string, options = {}) => {
     const response = await request.delete(path, options);
-    return response;
+    return response.data;
 };
 
 export default request;

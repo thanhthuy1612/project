@@ -2,6 +2,10 @@ import { Avatar, Divider, List } from 'antd';
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import LoadingListFriend from '../loading/LoadingListFriend';
+import { getListChat } from '../../../../api/user';
+import { useAppDispatch, useAppSelector } from '../../../../lib/hooks';
+import { IStatusCode } from '../../../../interface/IStatusCode';
+import { updateNotification } from '../../../../lib/features/notification';
 
 export interface DataType {
   gender: string;
@@ -24,29 +28,37 @@ const ListItemFriend: React.FC = () => {
   const [loadingFirst, setLoadingFirst] = React.useState<boolean>(true);
   const [selectedEmail, setSelectedEmail] = React.useState<string>('');
   const [data, setData] = React.useState<DataType[]>([]);
+  const [total, setTotal] = React.useState<number>(0);
 
-  const loadMoreData = () => {
+  const { id } = useAppSelector(state => state.user);
+  const dispatch = useAppDispatch()
+
+  const loadMoreData = async () => {
     if (loading) {
       return;
     }
     setLoading(true);
-    fetch('https://randomuser.me/api/?results=10&inc=name,gender,email,nat,picture&noinfo')
-      .then((res) => res.json())
-      .then((body) => {
-        setData([...data, ...body.results]);
-        setLoading(false);
-        !selectedEmail && setSelectedEmail(body.results[0].email)
-        setLoadingFirst(false);
-      })
-      .catch(() => {
-        setLoading(false);
-        setLoadingFirst(false);
-      });
+    const result = await getListChat({
+      id: id ?? '',
+      pageNumber: 20,
+      pageSize: 1
+    })
+    if (result.statusCode === IStatusCode.SUCCESS) {
+      setData([...data, ...result.data.listChats])
+      setTotal(result.data.totalLength)
+    } else {
+      dispatch(updateNotification({
+        type: 'fail',
+        description: result.data
+      }))
+    }
+    setLoading(false);
+    setLoadingFirst(false);
   };
 
   React.useEffect(() => {
-    loadMoreData();
-  }, []);
+    id && loadMoreData();
+  }, [id]);
 
   return (
     <div
@@ -59,9 +71,9 @@ const ListItemFriend: React.FC = () => {
       <InfiniteScroll
         dataLength={data.length}
         next={loadMoreData}
-        hasMore={data.length < 50}
+        hasMore={data.length < total}
         loader={<LoadingListFriend />}
-        endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
+        endMessage={data.length ? <Divider plain>It is all, nothing more 🤐</Divider> : undefined}
         scrollableTarget="scrollableDiv"
       >
         {!loadingFirst &&

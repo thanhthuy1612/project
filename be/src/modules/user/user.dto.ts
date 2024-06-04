@@ -11,7 +11,19 @@ export class ChangeEmailDto {
 }
 
 export class FriendsDTO {
-  username: string;
+  userID: string;
   messageID: string;
   createAt: Date;
+}
+
+export class ChatsDTO {
+  id: string;
+  userID: string;
+  isSendMessage: boolean;
+}
+
+export class SearchChatsDTO {
+  id: string;
+  pageNumber: number;
+  pageSize: number;
 }

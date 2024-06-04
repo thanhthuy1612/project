@@ -11,21 +11,17 @@ import {
 import { UserService } from './user.service';
 import { ResponseData } from 'src/global/globalClass';
 import { User } from 'src/models/UserScheme';
-import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
 import { AuthGuard } from '@nestjs/passport';
 import { getResponseData } from 'src/global/utils';
-import { ChangeEmailDto, ChangePasswordDto } from './user.dto';
+import { ChangeEmailDto, ChangePasswordDto, SearchChatsDTO } from './user.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Get()
   async getAllUser(): Promise<ResponseData<User>> {
-    return new ResponseData<User>(
-      await this.userService.findAll(),
-      HttpStatus.SUCCESS,
-      HttpMessage.SUCCESS,
-    );
+    const result = await this.userService.findAll();
+    return getResponseData(result);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -34,11 +30,8 @@ export class UserController {
     @Param('id')
     id: string,
   ): Promise<ResponseData<User>> {
-    return new ResponseData<User>(
-      await this.userService.findById(id),
-      HttpStatus.SUCCESS,
-      HttpMessage.SUCCESS,
-    );
+    const result = await this.userService.findById(id);
+    return getResponseData(result);
   }
 
   @UseGuards(AuthGuard('jwt'))
@@ -65,9 +58,23 @@ export class UserController {
   @Post('chats')
   async getChats(
     @Body()
-    user: User,
+    body: SearchChatsDTO,
   ): Promise<ResponseData<any>> {
-    const result = await this.userService.findMessageByEmail(user?.email);
+    const result = await this.userService.findMessage(
+      body.id,
+      body.pageNumber,
+      body.pageSize,
+    );
+    return getResponseData(result);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Get('search/:item')
+  async search(
+    @Param('item')
+    item: string,
+  ): Promise<ResponseData<User>> {
+    const result = await this.userService.search(item);
     return getResponseData(result);
   }
 
@@ -98,11 +105,8 @@ export class UserController {
     @Body()
     user: User,
   ): Promise<ResponseData<User>> {
-    return new ResponseData<User>(
-      await this.userService.update(id, user),
-      HttpStatus.SUCCESS,
-      HttpMessage.SUCCESS,
-    );
+    const result = await this.userService.update(id, user);
+    return getResponseData(result);
   }
 
   @Delete(':id')
@@ -110,10 +114,7 @@ export class UserController {
     @Param('id')
     id: string,
   ): Promise<ResponseData<User>> {
-    return new ResponseData<User>(
-      await this.userService.delete(id),
-      HttpStatus.SUCCESS,
-      HttpMessage.SUCCESS,
-    );
+    const result = await this.userService.delete(id);
+    return getResponseData(result);
   }
 }

@@ -4,7 +4,7 @@ import { User } from 'src/models/UserScheme';
 import mongoose from 'mongoose';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from '../auth/auth.dto';
-import { returnUser } from 'src/global/utils';
+import { returnSearch, returnUser } from 'src/global/utils';
 import { join } from 'path';
 import { unlink } from 'fs';
 import { ChangeEmailDto, ChangePasswordDto } from './user.dto';
@@ -170,10 +170,22 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async findMessageByEmail(email: string): Promise<any> {
+  async findMessage(
+    id: string,
+    pageNumber: number,
+    pageSize: number,
+  ): Promise<any> {
     try {
-      const findUser = await this.userModel.find({ email });
-      return findUser[0]?.chats;
+      const findUser = await this.userModel.findById(id);
+      console.log(pageNumber, pageSize);
+      // const listChats = findUser.chats.slice(
+      //   pageNumber * (pageSize - 1),
+      //   pageNumber * pageSize,
+      // );
+      return {
+        listChats: findUser.chats,
+        totalLength: findUser.chats.length,
+      };
     } catch (error) {
       console.log(error);
       return 'Error';
@@ -187,6 +199,32 @@ export class UserService extends BaseService<User> {
         return 'User not found.';
       }
       return returnUser(findUser[0]);
+    } catch (error) {
+      console.log(error);
+      return 'Error';
+    }
+  }
+
+  async findUsername(username: string): Promise<any> {
+    try {
+      const findUser = await this.userModel.find({ username });
+      return findUser?.[0];
+    } catch (error) {
+      console.log(error);
+      return 'Error';
+    }
+  }
+
+  async search(item: string): Promise<any> {
+    try {
+      const findUser = await this.userModel.find();
+      const result = findUser.reduce((res, user) => {
+        if (user?.username.toLowerCase().includes(item.toLowerCase())) {
+          res.push(returnSearch(user));
+        }
+        return res;
+      }, []);
+      return result;
     } catch (error) {
       console.log(error);
       return 'Error';

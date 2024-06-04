@@ -9,6 +9,11 @@ export class MessageDTO {
 }
 
 export class UserChatDTO {
-  username: string;
-  ava: string;
+  id: string;
+  isOwner?: boolean;
+}
+
+export class SearchMessageDTO {
+  id: string;
+  idSearch: string;
 }

@@ -7,28 +7,26 @@ import {
   Delete,
   Put,
 } from '@nestjs/common';
-import { JoinChatDto } from './chat.dto';
+import { JoinChatDto, SearchMessageDTO } from './chat.dto';
 import { ChatService } from './chat.service';
 import { ResponseData } from 'src/global/globalClass';
 import { Chat } from 'src/models/ChatScheme';
-import { HttpMessage, HttpStatus } from 'src/global/globalEnum';
+import { getResponseData } from 'src/global/utils';
 
 @Controller('chat')
 export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
-  @Post('/join')
+  @Post('join')
   async joinChat(@Body() joinChatDto: JoinChatDto) {
-    return this.chatService.findById(joinChatDto.id);
+    const result = await this.chatService.findById(joinChatDto.id);
+    return getResponseData(result);
   }
 
   @Get()
   async getAll(): Promise<ResponseData<Chat>> {
-    return new ResponseData<Chat>(
-      await this.chatService.findAll(),
-      HttpStatus.SUCCESS,
-      HttpMessage.SUCCESS,
-    );
+    const result = await this.chatService.findAll();
+    return getResponseData(result);
   }
 
   @Put(':id')
@@ -38,11 +36,8 @@ export class ChatController {
     @Body()
     chat: Chat,
   ): Promise<ResponseData<Chat>> {
-    return new ResponseData<Chat>(
-      await this.chatService.update(id, chat),
-      HttpStatus.SUCCESS,
-      HttpMessage.SUCCESS,
-    );
+    const result = await this.chatService.update(id, chat);
+    return getResponseData(result);
   }
 
   @Delete(':id')
@@ -50,10 +45,20 @@ export class ChatController {
     @Param('id')
     id: string,
   ): Promise<ResponseData<Chat>> {
-    return new ResponseData<Chat>(
-      await this.chatService.delete(id),
-      HttpStatus.SUCCESS,
-      HttpMessage.SUCCESS,
+    const result = await this.chatService.delete(id);
+    return getResponseData(result);
+  }
+
+  // @UseGuards(AuthGuard('jwt'))
+  @Post('username')
+  async getSearchMessageByUserName(
+    @Body()
+    body: SearchMessageDTO,
+  ): Promise<ResponseData<any>> {
+    const result = await this.chatService.findMessageByUsername(
+      body.id,
+      body.idSearch,
     );
+    return getResponseData(result);
   }
 }

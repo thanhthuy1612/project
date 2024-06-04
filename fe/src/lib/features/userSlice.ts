@@ -3,9 +3,10 @@ import { IUser } from '../../interface/IUser';
 import { urlImg } from '../../api/url';
 
 const initialState: IUser = {
+    id: '',
     email: '',
     username: '',
-    havePassword: false
+    havePassword: false,
 };
 
 export const userSlice = createSlice({

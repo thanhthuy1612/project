@@ -11,6 +11,7 @@ export const getResponseData: (value: any) => ResponseData<any> = (value) => {
 
 export const returnUser = (value: User) => {
   return {
+    id: value?._id,
     username: value?.username,
     email: value?.email,
     banner: value?.banner,
@@ -21,5 +22,14 @@ export const returnUser = (value: User) => {
     bio: value?.bio,
     havePassword: Boolean(value?.password),
     timeJoin: value?.timeJoin,
+  };
+};
+
+export const returnSearch = (value: User) => {
+  return {
+    id: value?._id,
+    username: value?.username,
+    email: value?.email,
+    ava: value?.ava,
   };
 };

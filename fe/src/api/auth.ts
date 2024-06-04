@@ -10,11 +10,11 @@ export const login = async (user: ILogin) => {
     try {
         const res = await post(`${path}/login`, { ...user });
         // Perform localStorage action
-        if (res?.data?.statusCode === IStatusCode.SUCCESS) {
-            localStorage.setItem('token', res.data.data.accessToken);
-            localStorage.setItem('email', res.data.data.email);
+        if (res.statusCode === IStatusCode.SUCCESS) {
+            localStorage.setItem('token', res.data.accessToken);
+            localStorage.setItem('email', res.data.email);
         }
-        return { ...res.data };
+        return { ...res };
     } catch (err) {
         console.log(err);
     }
@@ -24,11 +24,11 @@ export const register = async (user: IUser) => {
     try {
         const res = await post(`${path}/register`, { ...user });
         // Perform localStorage action
-        if (res?.data?.statusCode === IStatusCode.SUCCESS) {
-            localStorage.setItem('token', res.data.data.accessToken);
-            localStorage.setItem('email', res.data.data.email);
+        if (res.statusCode === IStatusCode.SUCCESS) {
+            localStorage.setItem('token', res.data.accessToken);
+            localStorage.setItem('email', res.data.email);
         }
-        return { ...res.data };
+        return { ...res };
     } catch (err) {
         console.log(err);
     }
@@ -49,11 +49,11 @@ export const register = async (user: IUser) => {
 export const google = async (token: any) => {
     try {
         const res = await post(`${path}/google`, { token });
-        if (res.data.statusCode === IStatusCode.SUCCESS) {
-            localStorage.setItem('token', res.data.data.accessToken);
-            localStorage.setItem('email', res.data.data.email);
+        if (res.statusCode === IStatusCode.SUCCESS) {
+            localStorage.setItem('token', res.data.accessToken);
+            localStorage.setItem('email', res.data.email);
         }
-        return { ...res.data };
+        return { ...res };
     } catch (err) {
         console.log(err);
     }
