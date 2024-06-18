@@ -6,12 +6,14 @@ import {
   Param,
   Delete,
   Put,
+  UseGuards,
 } from '@nestjs/common';
-import { JoinChatDto, SearchMessageDTO } from './chat.dto';
+import { JoinChatDto, SearchChatsDTO, SearchMessageDTO } from './chat.dto';
 import { ChatService } from './chat.service';
 import { ResponseData } from 'src/global/globalClass';
 import { Chat } from 'src/models/ChatScheme';
 import { getResponseData } from 'src/global/utils';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('chat')
 export class ChatController {
@@ -49,15 +51,43 @@ export class ChatController {
     return getResponseData(result);
   }
 
-  // @UseGuards(AuthGuard('jwt'))
-  @Post('username')
-  async getSearchMessageByUserName(
+  @UseGuards(AuthGuard('jwt'))
+  @Post('list')
+  async getChats(
+    @Body()
+    body: SearchChatsDTO,
+  ): Promise<ResponseData<any>> {
+    const result = await this.chatService.findMessage(
+      body.id,
+      body.pageNumber,
+      body.pageSize,
+    );
+    return getResponseData(result);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('search')
+  async getSearchMessageByID(
     @Body()
     body: SearchMessageDTO,
   ): Promise<ResponseData<any>> {
-    const result = await this.chatService.findMessageByUsername(
+    const result = await this.chatService.findMessageByID(
       body.id,
       body.idSearch,
+    );
+    return getResponseData(result);
+  }
+
+  @UseGuards(AuthGuard('jwt'))
+  @Post('message')
+  async getMessageByID(
+    @Body()
+    body: SearchChatsDTO,
+  ): Promise<ResponseData<any>> {
+    const result = await this.chatService.findMessageByIdChat(
+      body.id,
+      body.pageNumber,
+      body.pageSize,
     );
     return getResponseData(result);
   }

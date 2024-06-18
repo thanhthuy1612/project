@@ -11,9 +11,16 @@ export class MessageDTO {
 export class UserChatDTO {
   id: string;
   isOwner?: boolean;
+  isDisable?: boolean;
 }
 
 export class SearchMessageDTO {
   id: string;
   idSearch: string;
+}
+
+export class SearchChatsDTO {
+  id: string;
+  pageNumber: number;
+  pageSize: number;
 }

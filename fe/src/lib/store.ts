@@ -3,6 +3,7 @@ import notificationSlice from './features/notification';
 import loginSlice from './features/login';
 import userSlice from './features/userSlice';
 import reloadSlice from './features/reload';
+import messageSlice from './features/message';
 
 export const makeStore = () => {
     return configureStore({
@@ -11,6 +12,7 @@ export const makeStore = () => {
             login: loginSlice,
             user: userSlice,
             reload: reloadSlice,
+            message: messageSlice,
         },
     });
 };

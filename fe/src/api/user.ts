@@ -3,7 +3,6 @@ import { url } from './url';
 import { IUser } from '../interface/IUser';
 import { IChangePassword } from '../interface/IChangePassword';
 import { IChangeEmail } from '../interface/IChangeEmail';
-import { ISearchListChat } from '../interface/ISearchListChat';
 
 const path = url.account;
 
@@ -46,15 +45,6 @@ export const changeEmail = async (user: IChangeEmail) => {
 export const searchChats = async (item: string) => {
     try {
         const res = await get(`${path}/search/${item}`);
-        return { ...res };
-    } catch (err) {
-        console.log(err);
-    }
-};
-
-export const getListChat = async (item: ISearchListChat) => {
-    try {
-        const res = await post(`${path}/chats`, { ...item });
         return { ...res };
     } catch (err) {
         console.log(err);

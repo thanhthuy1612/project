@@ -21,9 +21,3 @@ export class ChatsDTO {
   userID: string;
   isSendMessage: boolean;
 }
-
-export class SearchChatsDTO {
-  id: string;
-  pageNumber: number;
-  pageSize: number;
-}

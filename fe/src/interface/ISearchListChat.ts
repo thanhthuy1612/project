@@ -3,3 +3,8 @@ export interface ISearchListChat {
     pageNumber: number;
     pageSize: number;
 }
+
+export interface ISearchMessage {
+    id: string;
+    idSearch: string;
+  }

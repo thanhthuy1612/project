@@ -6,4 +6,5 @@ export const url = {
     auth: 'auth',
     upload: 'upload',
     getFile: 'getFile',
+    chat: 'chat'
 };

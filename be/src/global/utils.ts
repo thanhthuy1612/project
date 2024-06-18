@@ -33,3 +33,13 @@ export const returnSearch = (value: User) => {
     ava: value?.ava,
   };
 };
+
+export const returnListMessage = (value: any) => {
+  return {
+    id: value?.id,
+    listUser: value?.listUser,
+    name: value?.name,
+    image: value?.image,
+    createdAt: value?.createdAt,
+  };
+};

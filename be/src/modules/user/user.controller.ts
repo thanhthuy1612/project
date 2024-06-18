@@ -13,7 +13,7 @@ import { ResponseData } from 'src/global/globalClass';
 import { User } from 'src/models/UserScheme';
 import { AuthGuard } from '@nestjs/passport';
 import { getResponseData } from 'src/global/utils';
-import { ChangeEmailDto, ChangePasswordDto, SearchChatsDTO } from './user.dto';
+import { ChangeEmailDto, ChangePasswordDto } from './user.dto';
 
 @Controller('user')
 export class UserController {
@@ -51,20 +51,6 @@ export class UserController {
     user: User,
   ): Promise<ResponseData<any>> {
     const result = await this.userService.findAndUpdate(user);
-    return getResponseData(result);
-  }
-
-  @UseGuards(AuthGuard('jwt'))
-  @Post('chats')
-  async getChats(
-    @Body()
-    body: SearchChatsDTO,
-  ): Promise<ResponseData<any>> {
-    const result = await this.userService.findMessage(
-      body.id,
-      body.pageNumber,
-      body.pageSize,
-    );
     return getResponseData(result);
   }
 

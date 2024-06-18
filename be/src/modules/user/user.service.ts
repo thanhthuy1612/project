@@ -170,28 +170,6 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async findMessage(
-    id: string,
-    pageNumber: number,
-    pageSize: number,
-  ): Promise<any> {
-    try {
-      const findUser = await this.userModel.findById(id);
-      console.log(pageNumber, pageSize);
-      // const listChats = findUser.chats.slice(
-      //   pageNumber * (pageSize - 1),
-      //   pageNumber * pageSize,
-      // );
-      return {
-        listChats: findUser.chats,
-        totalLength: findUser.chats.length,
-      };
-    } catch (error) {
-      console.log(error);
-      return 'Error';
-    }
-  }
-
   async findByEmail(email: string): Promise<any> {
     try {
       const findUser = await this.userModel.find({ email });

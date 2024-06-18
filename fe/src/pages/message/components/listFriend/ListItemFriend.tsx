@@ -2,35 +2,26 @@ import { Avatar, Divider, List } from 'antd';
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import LoadingListFriend from '../loading/LoadingListFriend';
-import { getListChat } from '../../../../api/user';
 import { useAppDispatch, useAppSelector } from '../../../../lib/hooks';
 import { IStatusCode } from '../../../../interface/IStatusCode';
 import { updateNotification } from '../../../../lib/features/notification';
-
-export interface DataType {
-  gender: string;
-  name: {
-    title: string;
-    first: string;
-    last: string;
-  };
-  email: string;
-  picture: {
-    large: string;
-    medium: string;
-    thumbnail: string;
-  };
-  nat: string;
-}
+import { getListChat } from '../../../../api/chat';
+import { UserOutlined } from '@ant-design/icons'
+import { IDataListFriend } from '../../../../interface/IDataListFriend';
+import { updateSelectedMessage } from '../../../../lib/features/message';
+import { dateFormat } from '../../../../ultis/time';
+import { DateFormatType } from '../../../../interface/IRouter';
+import { urlImg } from '../../../../api/url';
 
 const ListItemFriend: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
   const [loadingFirst, setLoadingFirst] = React.useState<boolean>(true);
-  const [selectedEmail, setSelectedEmail] = React.useState<string>('');
-  const [data, setData] = React.useState<DataType[]>([]);
+  const [data, setData] = React.useState<IDataListFriend[]>([]);
   const [total, setTotal] = React.useState<number>(0);
 
   const { id } = useAppSelector(state => state.user);
+  const { selectedMessage } = useAppSelector(state => state.message);
+
   const dispatch = useAppDispatch()
 
   const loadMoreData = async () => {
@@ -44,7 +35,7 @@ const ListItemFriend: React.FC = () => {
       pageSize: 1
     })
     if (result.statusCode === IStatusCode.SUCCESS) {
-      setData([...data, ...result.data.listChats])
+      setData([...data, ...result.data.listMessage])
       setTotal(result.data.totalLength)
     } else {
       dispatch(updateNotification({
@@ -59,6 +50,10 @@ const ListItemFriend: React.FC = () => {
   React.useEffect(() => {
     id && loadMoreData();
   }, [id]);
+
+  const onHandleSelectedMessage = (item: IDataListFriend) => {
+    dispatch(updateSelectedMessage(item))
+  }
 
   return (
     <div
@@ -81,15 +76,21 @@ const ListItemFriend: React.FC = () => {
             dataSource={data}
             renderItem={(item) => (
               <List.Item
-                key={item.email}
+                key={item.id}
                 style={{ paddingLeft: '16px', paddingRight: '16px', cursor: 'pointer' }}
-                className={`${selectedEmail === item.email && '!bg-primaryGray'} hover:bg-hoverBlue`}
-                onClick={() => { setSelectedEmail(item.email) }}
+                className={`${selectedMessage?.id === item.id && '!bg-primaryGray'} hover:bg-hoverBlue`}
+                onClick={() => { onHandleSelectedMessage(item) }}
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={item.picture.large} />}
-                  title={item.name.last}
-                  description={item.email}
+                  avatar={
+                    <Avatar
+                      className=' bg-primaryWhite text-primaryBlueDark ring-primaryBlueDark ring-offset-2 ring-[1px]'
+                      src={item?.image && `${urlImg}${item?.image}`}
+                      icon={<UserOutlined />}
+                    />
+                  }
+                  title={item?.name}
+                  description={item?.createdAt && dateFormat(item?.createdAt, DateFormatType.FullDate)}
                 />
               </List.Item>
             )}

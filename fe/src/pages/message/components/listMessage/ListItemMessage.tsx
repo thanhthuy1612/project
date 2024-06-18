@@ -4,37 +4,25 @@ import { Divider } from 'antd';
 import LoadingMessage from '../loading/LoadingMessage';
 import ItemMessage from './itemMessage/ItemMessage';
 import MyMessage from './itemMessage/MyMessage';
-
-interface DataType {
-  gender: string;
-  name: {
-    title: string;
-    first: string;
-    last: string;
-  };
-  email: string;
-  picture: {
-    large: string;
-    medium: string;
-    thumbnail: string;
-  };
-  nat: string;
-  ref?: boolean;
-}
+import { IMessage } from '../../../../interface/IDataListFriend';
+import { useAppSelector } from '../../../../lib/hooks';
+import { getMessage } from '../../../../api/chat';
 
 const ListItemMessage: React.FC = () => {
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [data, setData] = React.useState<DataType[]>([]);
+  const [data, setData] = React.useState<IMessage[]>([]);
 
   console.log(data);
 
-  const scrollMessageData = (oldData: DataType[], newData: DataType[]) => {
+  const { selectedMessage } = useAppSelector(state => state.message)
+
+  const scrollMessageData = (oldData: IMessage[], newData: IMessage[]) => {
     let indexStart = 0;
-    const resultOldData = oldData.reduce((result: DataType[], item) => {
+    const resultOldData = oldData.reduce((result: IMessage[], item) => {
       indexStart++;
       return [...result, { ...item, ref: false, email: indexStart.toString() }]
     }, [])
-    const resultNewData = newData.reduce((result: DataType[], item, index) => {
+    const resultNewData = newData.reduce((result: IMessage[], item, index) => {
       indexStart++;
       if (!index) {
         return [...result, { ...item, ref: true, email: indexStart.toString() }]
@@ -44,21 +32,15 @@ const ListItemMessage: React.FC = () => {
     return [...resultOldData, ...resultNewData]
   }
 
-  const loadMoreData = () => {
-    console.log(1)
+  const loadMoreData = async () => {
     if (loading) {
       return;
     }
     setLoading(true);
-    fetch('https://randomuser.me/api/?results=10&inc=name,gender,email,nat,picture&noinfo')
-      .then((res) => res.json())
-      .then((body) => {
-        setData(scrollMessageData(data, body.results));
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-      });
+    if (selectedMessage?.id) {
+      const result = await getMessage({ id: selectedMessage?.id, pageNumber: 1, pageSize: 20 });
+      setLoading(false);
+    }
   };
 
   React.useEffect(() => {
@@ -87,16 +69,16 @@ const ListItemMessage: React.FC = () => {
         scrollableTarget="scrollableMessage"
       >
         {data.map((item, index) => (
-          <div key={item.email}>
+          <div key={index}>
             {index % 2 === 0 ?
               <ItemMessage
-                message={item.email}
+                message={item.message ?? ''}
                 date={new Date}
-                src={item.picture.large}
+                src={undefined}
               />
               :
               <MyMessage
-                message={item.email}
+                message={item.message ?? ''}
                 date={new Date}
               />
             }

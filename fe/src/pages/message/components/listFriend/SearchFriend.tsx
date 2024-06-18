@@ -1,15 +1,24 @@
-import React from 'react';
-import { AudioOutlined, UserOutlined } from '@ant-design/icons'
+import { AudioOutlined, SearchOutlined, UserOutlined, LoadingOutlined } from '@ant-design/icons';
 import { Avatar, Input, List, Tooltip, theme } from 'antd';
-import { searchChats } from '../../../../api/user';
+import React from 'react';
+import { searchFriendChats } from '../../../../api/chat';
 import { urlImg } from '../../../../api/url';
+import { searchChats } from '../../../../api/user';
 import { ISearchChat } from '../../../../interface/ISearchChat';
+import { useAppDispatch, useAppSelector } from '../../../../lib/hooks';
 import { useDebounce } from '../../../../ultis/useDebounce';
+import { IStatusCode } from '../../../../interface/IStatusCode';
+import { updateSelectedMessage } from '../../../../lib/features/message';
 
 const SearchFriend: React.FC = () => {
   const [input, setInput] = React.useState<string>("");
   const [listSearch, setListSearch] = React.useState<ISearchChat[]>([]);
   const [loading, setLoading] = React.useState<boolean>(false);
+  const [loadingSearch, setLoadingSearch] = React.useState<boolean>(false);
+
+
+  const { id } = useAppSelector(state => state.user);
+  const dispatch = useAppDispatch();
 
   const {
     token: { colorBgContainer },
@@ -36,19 +45,34 @@ const SearchFriend: React.FC = () => {
     await fetchSearch();
   };
 
-  const handleClick = (item: ISearchChat) => () => {
-    setInput(item.username)
-    console.log(item)
+  const handleClick = (item: ISearchChat) => async () => {
+    if (item.id && id) {
+      setLoadingSearch(true)
+      setInput(item.username);
+      const result = await searchFriendChats({ id, idSearch: item.id })
+      if (result.statusCode === IStatusCode.SUCCESS) {
+        dispatch(updateSelectedMessage(result.data))
+      }
+      setInput('');
+      setLoadingSearch(false)
+    }
   }
 
-  const suffix = (
-    <AudioOutlined
+  const renderSuffix = () => {
+    if (loadingSearch) {
+      return <LoadingOutlined
+        style={{
+          fontSize: 16,
+        }}
+      />
+    }
+    return <AudioOutlined
       style={{
         fontSize: 16,
       }}
       className=' cursor-pointer'
     />
-  );
+  }
 
   return (
     <div className=' h-[50px] px-[16px] flex items-center bg-primaryWhite'>
@@ -85,10 +109,11 @@ const SearchFriend: React.FC = () => {
           value={input}
           placeholder="Search message"
           size="large"
-          suffix={suffix}
-          allowClear
+          suffix={renderSuffix()}
+          allowClear={!loadingSearch}
           onChange={handleChange}
           onPressEnter={handleEnter}
+          prefix={<SearchOutlined />}
         />
       </Tooltip>
     </div>
