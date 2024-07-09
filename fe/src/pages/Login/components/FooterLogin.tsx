@@ -2,27 +2,25 @@ import React from 'react';
 import { GoogleLogin, GoogleOAuthProvider } from '@react-oauth/google';
 import { google } from '../../../api/auth';
 import config from '../../../config';
-import { IStatusCode } from '../../../interface/IStatusCode';
 import { useAppDispatch } from '../../../lib/hooks';
 import { updateUser } from '../../../lib/features/userSlice';
 import { useNavigate } from 'react-router-dom';
-import { updateNotification } from '../../../lib/features/notification';
 import { Flex } from 'antd';
+import { useNotification } from '../../../utils/useNotification';
 
 const FooterLogin: React.FC = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const { setNotification } = useNotification()
   const connectGoogle = async (credentialResponse: any) => {
     const res = await google(credentialResponse.credential)
-    if (res?.statusCode === IStatusCode.SUCCESS) {
+    const onSuccess = () => {
       dispatch(updateUser(res.data))
       navigate('/')
-      dispatch(updateNotification({
-        type: 'success',
-        description: 'Logged in successfully'
-      }))
     }
+    setNotification(res, 'Logged in successfully', onSuccess)
   }
+
   return (
     <div className='w-[100%] mt-[10px]'>
       <Flex className='w-[100%] justify-between items-center mb-[15px]'>

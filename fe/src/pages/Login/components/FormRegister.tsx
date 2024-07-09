@@ -5,9 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../lib/hooks';
 import { updateIsLoadingForm } from '../../../lib/features/login';
 import { register } from '../../../api/auth';
-import { IStatusCode } from '../../../interface/IStatusCode';
-import { updateNotification } from '../../../lib/features/notification';
 import { updateUser } from '../../../lib/features/userSlice';
+import { useNotification } from '../../../utils/useNotification';
 
 type FieldType = {
   username?: string;
@@ -19,8 +18,10 @@ type FieldType = {
 const FormRegister: React.FC = () => {
   const [isDisable, setIsDisable] = React.useState<boolean>(true)
   const { isLoadingConnect, isLoadingForm } = useAppSelector(state => state.login)
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const dispatch = useAppDispatch();
+
+  const { setNotification } = useNotification();
 
   React.useEffect(() => {
     setIsDisable(isLoadingConnect || isLoadingForm)
@@ -45,19 +46,11 @@ const FormRegister: React.FC = () => {
     if (values.username && values.password && values.email) {
       dispatch(updateIsLoadingForm(true))
       const fetchRegister = await register({ username: values.username, password: values.password, email: values.email })
-      if (fetchRegister?.statusCode === IStatusCode.SUCCESS) {
+      const onSuccess = () => {
         dispatch(updateUser(fetchRegister.data))
         navigate('/')
-        dispatch(updateNotification({
-          type: 'success',
-          description: 'Register in successfully'
-        }))
-      } else {
-        dispatch(updateNotification({
-          type: 'fail',
-          description: fetchRegister.data
-        }))
       }
+      setNotification(fetchRegister, 'Register in successfully', onSuccess)
       dispatch(updateIsLoadingForm(false))
     }
   };

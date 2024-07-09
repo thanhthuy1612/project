@@ -4,3 +4,5 @@ export const removeUnnecessaryWhiteSpace = (string: string | undefined) => {
     if (result === '') return undefined;
     return result;
 };
+
+export const defaultPageSize = 20;

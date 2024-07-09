@@ -5,9 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../lib/hooks';
 import { updateIsLoadingForm } from '../../../lib/features/login';
 import { login } from '../../../api/auth';
-import { IStatusCode } from '../../../interface/IStatusCode';
-import { updateNotification } from '../../../lib/features/notification';
 import { updateUser } from '../../../lib/features/userSlice';
+import { useNotification } from '../../../utils/useNotification';
 
 type FieldType = {
   email?: string;
@@ -21,6 +20,8 @@ const FormLogin: React.FC = () => {
   const navigate = useNavigate()
   const dispatch = useAppDispatch();
 
+  const { setNotification } = useNotification();
+
   React.useEffect(() => {
     setIsDisable(isLoadingConnect || isLoadingForm)
   }, [isLoadingConnect, isLoadingForm])
@@ -29,19 +30,11 @@ const FormLogin: React.FC = () => {
     if (values.email && values.password) {
       dispatch(updateIsLoadingForm(true))
       const fetchLogin = await login({ email: values.email, password: values.password, isRemember: values.remember })
-      if (fetchLogin?.statusCode === IStatusCode.SUCCESS) {
+      const onSuccess = () => {
         dispatch(updateUser(fetchLogin?.data))
         navigate('/')
-        dispatch(updateNotification({
-          type: 'success',
-          description: 'Logged in successfully'
-        }))
-      } else {
-        dispatch(updateNotification({
-          type: 'fail',
-          description: fetchLogin.data
-        }))
       }
+      setNotification(fetchLogin, 'Logged in successfully', onSuccess)
       dispatch(updateIsLoadingForm(false))
     }
   };

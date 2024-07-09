@@ -9,7 +9,7 @@ import {
   UserOutlined,
   MessageOutlined
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../lib/hooks';
 import { googleLogout } from '@react-oauth/google';
 import { resetStateUser, updateUser } from '../../lib/features/userSlice';
@@ -17,11 +17,13 @@ import { getUserByEmail } from '../../api/user';
 import { IStatusCode } from '../../interface/IStatusCode';
 import { updateIsLoadingPage } from '../../lib/features/reload';
 import LoadingSpin from '../loading/LoadingSpin';
+import { resetStateMessage } from '../../lib/features/message';
 
 const ButtonLogo: React.FC = () => {
   const [isDisable, setIsDisable] = React.useState<boolean>(false)
   const [modalOpen, setModalOpen] = React.useState<boolean>(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const location = useLocation();
   const { username, ava } = useAppSelector(state => state.user)
   const { isLoadingPage } = useAppSelector(state => state.reload)
 
@@ -56,43 +58,47 @@ const ButtonLogo: React.FC = () => {
   };
 
   const handleMenuClick: MenuProps['onClick'] = (e) => {
+    if (location.pathname === e.key) {
+      return;
+    }
     switch (e.key) {
-      case '1':
-        navigate('/profile')
+      case '/profile':
+        navigate(e.key);
         break;
-      case '2':
-        navigate('/message')
+      case '/message':
+        navigate(e.key);
+        dispatch(resetStateMessage());
         break;
-      case '3':
-        navigate('/notification')
+      case '/notification':
+        navigate(e.key);
         break;
-      case '4':
-        navigate('/settings/profile/account')
+      case '/settings/profile/account':
+        navigate(e.key);
         break;
       case '5':
-        setModalOpen(true)
+        setModalOpen(true);
         break;
     }
   };
 
   const items = [
     {
-      key: '1',
+      key: '/profile',
       label: username,
       icon: <HomeOutlined />
     },
     {
-      key: '2',
+      key: '/message',
       label: 'Message',
       icon: <MessageOutlined />
     },
     {
-      key: '3',
+      key: '/notification',
       label: 'Notification',
       icon: <BellOutlined />
     },
     {
-      key: '4',
+      key: '/settings/profile/account',
       label: 'Settings',
       icon: <SettingOutlined />
     },

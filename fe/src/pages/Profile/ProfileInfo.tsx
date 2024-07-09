@@ -1,7 +1,7 @@
 import { Collapse, Descriptions, DescriptionsProps, theme } from 'antd';
 import React from 'react';
 import { CaretRightOutlined } from '@ant-design/icons';
-import { dateFormat } from '../../ultis/time';
+import { dateFormat } from '../../utils/useTime';
 import { DateFormatType } from '../../enum/IDateType';
 
 export interface IProfileInfoProps {

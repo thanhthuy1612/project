@@ -11,6 +11,7 @@ import { updateUser } from '../../lib/features/userSlice';
 import { useAppDispatch, useAppSelector } from '../../lib/hooks';
 import ImgCrop from 'antd-img-crop';
 import { urlImg } from '../../api/url';
+import { useNotification } from '../../utils/useNotification';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
@@ -73,7 +74,9 @@ const PublicProfile: React.FC = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   const [form] = Form.useForm();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  const { setNotification } = useNotification();
 
   const dispatch = useAppDispatch();
   React.useEffect(() => {
@@ -156,9 +159,7 @@ const PublicProfile: React.FC = () => {
 
   const uploadImg = async (urlOld: string | undefined, isChange: boolean, fileList: UploadFile[]) => {
     let url: string | undefined = urlOld
-    console.log(isChange, urlOld)
     if (!isChange) {
-      console.log(urlOld?.split(urlImg))
       return urlOld?.split(urlImg)[1]
     }
     if (fileList.length > 0 && isChange) {
@@ -197,19 +198,11 @@ const PublicProfile: React.FC = () => {
         banner: urlBanner
       }
     )
-    if (res?.statusCode === IStatusCode.SUCCESS) {
+    const onSuccess = () => {
       dispatch(updateUser(res.data))
       navigate('/')
-      dispatch(updateNotification({
-        type: 'success',
-        description: 'Register in successfully'
-      }))
-    } else {
-      dispatch(updateNotification({
-        type: 'fail',
-        description: res.data
-      }))
     }
+    setNotification(res, 'Register in successfully', onSuccess)
     setIsLoading(false)
   };
 

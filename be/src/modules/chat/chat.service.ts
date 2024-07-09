@@ -7,6 +7,8 @@ import { User } from 'src/models/UserScheme';
 import { ChatsDTO } from '../user/user.dto';
 import { UserService } from '../user/user.service';
 import { returnListMessage, returnSearch } from 'src/global/utils';
+import { MessageDTO, SocketDTO, UserChatDTO } from './chat.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ChatService extends BaseService<Chat> {
@@ -34,15 +36,15 @@ export class ChatService extends BaseService<Chat> {
   getListChatsByListId = async (listChats: ChatsDTO[], id: string) => {
     let listMessage = [];
     for (const item of listChats) {
-      const info = await this.getListMessage(item.id, id);
-      if (info) {
+      const info = await this.getListMessage(item.id, id, item.isReadAll);
+      if (typeof info !== 'string') {
         listMessage = [...listMessage, info];
       }
     }
     return listMessage;
   };
 
-  async findMessage(
+  async findListFriendMessage(
     id: string,
     pageNumber: number,
     pageSize: number,
@@ -52,14 +54,15 @@ export class ChatService extends BaseService<Chat> {
       if (!findUser) {
         return 'Error';
       }
-      const listChats = findUser?.chats ?? [];
+      const listChats =
+        findUser?.chats.filter((item) => item.isSendMessage) ?? [];
       const listMessage = await this.getListChatsByListId(listChats, id);
       const result = listMessage
-        .sort((a, b) => b.createdAt - a.createdAt)
-        ?.splice(pageNumber * (pageSize - 1), pageNumber * pageSize);
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        ?.splice(0, pageNumber * pageSize);
       return {
         listMessage: result,
-        totalLength: (findUser?.chats ?? []).length,
+        totalLength: listChats.length,
       };
     } catch (error) {
       console.log(error);
@@ -75,7 +78,11 @@ export class ChatService extends BaseService<Chat> {
         if (user) {
           listUser = [
             ...listUser,
-            { ...returnSearch(user), isOwner: item?.isOwner },
+            {
+              ...returnSearch(user),
+              isOwner: item?.isOwner,
+              isRead: item?.isRead,
+            },
           ];
         }
       } catch (error) {
@@ -85,7 +92,7 @@ export class ChatService extends BaseService<Chat> {
     return listUser;
   };
 
-  getListMessage = async (idChat: string, id: string) => {
+  getListMessage = async (idChat: string, id: string, isReadAll: boolean) => {
     const findChats = await this.chatModel.findById(idChat);
     if (!findChats) {
       return 'Chat not found.';
@@ -95,7 +102,7 @@ export class ChatService extends BaseService<Chat> {
     let image = '';
     let name = '';
     if (listUser.length === 2) {
-      const user = listUser.filter((item) => item.id.toString() !== id)?.[0];
+      const user = listUser.find((item) => item.id.toString() !== id);
       image = user?.ava;
       name = user?.username;
     }
@@ -106,11 +113,11 @@ export class ChatService extends BaseService<Chat> {
     }
     return returnListMessage({
       ...findChats,
-      listUser,
       image: findChats?.image ?? image,
       name: findChats?.name ?? name,
       id: idChat,
       createdAt: findChats?.createdAt,
+      isReadAll,
     });
   };
 
@@ -133,6 +140,7 @@ export class ChatService extends BaseService<Chat> {
         id: createNewChat._id,
         userID: search._id,
         isSendMessage: false,
+        isReadAll: true,
       },
     ];
 
@@ -142,6 +150,7 @@ export class ChatService extends BaseService<Chat> {
         id: createNewChat._id,
         userID: user._id,
         isSendMessage: false,
+        isReadAll: true,
       },
     ];
 
@@ -151,7 +160,7 @@ export class ChatService extends BaseService<Chat> {
     await this.userService.update(search._id, {
       chats: newUserChatsTo,
     });
-    return this.getListMessage(createNewChat._id, user._id);
+    return this.getListMessage(createNewChat._id, user._id, true);
   };
 
   createChatYourSell = async (findUser: User) => {
@@ -170,14 +179,19 @@ export class ChatService extends BaseService<Chat> {
           id: createNewChat._id,
           userID: findUser._id,
           isSendMessage: false,
+          isReadAll: true,
         },
       ];
       await this.userService.update(findUser._id, {
         chats: newUserChatsFrom,
       });
-      return this.getListMessage(createNewChat._id, findUser.id);
+      return this.getListMessage(createNewChat._id, findUser.id, true);
     }
-    return this.getListMessage(findChat[0].id, findUser.id);
+    return this.getListMessage(
+      findChat[0].id,
+      findUser.id,
+      findChat[0].isReadAll,
+    );
   };
 
   async findMessageByID(id: string, idSearch: string): Promise<any> {
@@ -201,7 +215,7 @@ export class ChatService extends BaseService<Chat> {
       if (!findChat.length) {
         return await this.createMessage(findUser, findUserSearch);
       }
-      return this.getListMessage(findChat[0].id, id);
+      return this.getListMessage(findChat[0].id, id, findChat[0]?.isReadAll);
     } catch (error) {
       console.log(error);
       return 'Error';
@@ -209,20 +223,129 @@ export class ChatService extends BaseService<Chat> {
   }
   async findMessageByIdChat(
     idChat: string,
+    idUser: string,
     pageNumber: number,
     pageSize: number,
   ): Promise<any> {
     const findChats = await this.chatModel.findById(idChat);
-    const newMessage = findChats.message ?? [];
+    const newMessage: MessageDTO[] = findChats.message ?? [];
 
-    const spliceMessage = newMessage.splice(
-      pageNumber * (pageSize - 1),
-      pageNumber * pageSize,
+    const findUser = await this.userService.findById(idUser);
+    const chatUser = (findUser.chats ?? []).reduce(
+      (result: ChatsDTO[], item) => {
+        if (item.id.toString() === idChat) {
+          result.push({ ...item, isReadAll: true });
+        } else {
+          result.push(item);
+        }
+        return result;
+      },
+      [],
     );
+
+    await this.userService.update(idUser, { chats: chatUser });
+
+    const spliceMessage = newMessage
+      .sort((a, b) => b.createAt.getTime() - a.createAt.getTime())
+      .splice(0, pageNumber * pageSize);
+
+    const newListUser = findChats.listUser.reduce(
+      (result: UserChatDTO[], item) => {
+        if (item.id.toString() === idUser) {
+          result.push({ ...item, isRead: spliceMessage[0]?.id ?? '' });
+        } else {
+          result.push(item);
+        }
+        return result;
+      },
+      [],
+    );
+
+    await this.chatModel.findByIdAndUpdate(idChat, { listUser: newListUser });
+
+    const listUser = await this.setListUser(findChats);
 
     return {
       message: spliceMessage,
       total: (findChats.message ?? []).length,
+      listUser,
     };
+  }
+
+  updateMessageUserStart = async (
+    idUser: string,
+    idChat: string,
+    from: string,
+  ) => {
+    const findUser = await this.userService.findById(idUser);
+    const newChats = findUser.chats.reduce(
+      (result: ChatsDTO[], item: ChatsDTO) => {
+        if (item.id.toString() === idChat) {
+          result.push({
+            ...item,
+            isSendMessage: true,
+            isReadAll: item.userID.toString() !== from,
+          });
+        } else {
+          result.push(item);
+        }
+        return result;
+      },
+      [],
+    );
+    await this.userService.update(idUser, {
+      chats: newChats,
+    });
+  };
+
+  setStartMessage = async (
+    listChats: UserChatDTO[],
+    idChat: string,
+    from: string,
+  ) => {
+    for (const item of listChats) {
+      if (!item.isDisable) {
+        await this.updateMessageUserStart(item.id, idChat, from);
+      }
+    }
+  };
+
+  addMessage = async (idChat: string, from: string, message: string) => {
+    try {
+      const findChats = await this.chatModel.findById(idChat);
+      const createAt = new Date();
+      await this.setStartMessage(findChats.listUser, idChat, from);
+      const newMessage: MessageDTO = {
+        id: uuidv4(),
+        from,
+        message,
+        createAt,
+      };
+      const newListUser = findChats.listUser.reduce(
+        (result: UserChatDTO[], item) => {
+          if (item.id.toString() === from) {
+            result.push({ ...item, isRead: newMessage.id });
+          } else {
+            result.push(item);
+          }
+          return result;
+        },
+        [],
+      );
+      await this.chatModel.findByIdAndUpdate(idChat, {
+        listUser: newListUser,
+        message: [...findChats.message, newMessage],
+        createAt,
+      });
+      return {
+        listUser: newListUser,
+        idChat,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  async chatSocket(body: SocketDTO): Promise<any> {
+    return await this.addMessage(body.idChat, body.from, body.message);
   }
 }

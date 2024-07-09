@@ -74,13 +74,13 @@ const SettingsLayout: React.FC<ISettingsLayout> = ({ children }) => {
       let breadcrumbArray: any[] = items
       const arrayPath = location.pathname.split('/settings/')
       const result: ItemType[] = arrayPath[1].split('/').reduce((res: ItemType[], name: string) => {
-        const filter = breadcrumbArray.filter(item => item?.key === name)
-        if (filter.length) {
-          breadcrumbArray = filter[0]?.children
+        const filter = breadcrumbArray.find(item => item?.key === name)
+        if (filter) {
+          breadcrumbArray = filter?.children
           res.push({
-            title: filter[0]?.label
+            title: filter?.label
           })
-          setSelectedMenu(filter[0])
+          setSelectedMenu(filter)
         }
         return res
       }, [

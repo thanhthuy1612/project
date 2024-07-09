@@ -2,10 +2,9 @@ import { Button, Form, FormProps, Input } from 'antd';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../../lib/hooks';
 import { changePassword } from '../../../api/user';
-import { IStatusCode } from '../../../interface/IStatusCode';
-import { updateNotification } from '../../../lib/features/notification';
 import { useNavigate } from 'react-router-dom';
 import { updateUser } from '../../../lib/features/userSlice';
+import { useNotification } from '../../../utils/useNotification';
 
 type FieldType = {
   oldPassword?: string;
@@ -19,6 +18,8 @@ const ChangePassword: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
+  const { setNotification } = useNotification();
+
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     setIsDisable(true)
     if (values?.newPassword && email) {
@@ -29,23 +30,13 @@ const ChangePassword: React.FC = () => {
           email
         }
       );
-      console.log(res)
-      if (res?.statusCode === IStatusCode.SUCCESS) {
-        dispatch(updateUser(res.data))
-        navigate('/')
-        dispatch(updateNotification({
-          type: 'success',
-          description: 'Change password successfully'
-        }))
-      } else {
-        navigate('/')
-        dispatch(updateNotification({
-          type: 'fail',
-          description: res.data
-        }))
+      const onSuccess = () => {
+        dispatch(updateUser(res.data));
+        navigate('/');
       }
+      setNotification(res, 'Change password successfully', onSuccess)
     }
-    setIsDisable(false)
+    setIsDisable(false);
   };
 
   return <Form

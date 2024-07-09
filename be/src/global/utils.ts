@@ -1,6 +1,7 @@
 import { User } from 'src/models/UserScheme';
 import { ResponseData } from './globalClass';
 import { HttpMessage, HttpStatus } from './globalEnum';
+import { ReturnListMessage } from 'src/modules/chat/chat.dto';
 
 export const getResponseData: (value: any) => ResponseData<any> = (value) => {
   if (typeof value === 'string') {
@@ -34,12 +35,13 @@ export const returnSearch = (value: User) => {
   };
 };
 
-export const returnListMessage = (value: any) => {
+export const returnListMessage: (value: any) => ReturnListMessage = (value) => {
   return {
     id: value?.id,
     listUser: value?.listUser,
     name: value?.name,
     image: value?.image,
     createdAt: value?.createdAt,
+    isReadAll: value?.isReadAll,
   };
 };

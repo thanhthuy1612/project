@@ -28,6 +28,7 @@ export default {
                 bgColor: '#eeeee9',
                 hoverPrimary: '#E5E1DF',
                 hoverBlue: '#f3f5ed',
+                yellowLight: '#d7d0964d',
             },
             boxShadow: {
                 'focus-visible': 'none',

@@ -8,7 +8,12 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { JoinChatDto, SearchChatsDTO, SearchMessageDTO } from './chat.dto';
+import {
+  ChatDTO,
+  JoinChatDto,
+  SearchChatsDTO,
+  SearchMessageDTO,
+} from './chat.dto';
 import { ChatService } from './chat.service';
 import { ResponseData } from 'src/global/globalClass';
 import { Chat } from 'src/models/ChatScheme';
@@ -57,7 +62,7 @@ export class ChatController {
     @Body()
     body: SearchChatsDTO,
   ): Promise<ResponseData<any>> {
-    const result = await this.chatService.findMessage(
+    const result = await this.chatService.findListFriendMessage(
       body.id,
       body.pageNumber,
       body.pageSize,
@@ -82,10 +87,11 @@ export class ChatController {
   @Post('message')
   async getMessageByID(
     @Body()
-    body: SearchChatsDTO,
+    body: ChatDTO,
   ): Promise<ResponseData<any>> {
     const result = await this.chatService.findMessageByIdChat(
-      body.id,
+      body.idChat,
+      body.idUser,
       body.pageNumber,
       body.pageSize,
     );

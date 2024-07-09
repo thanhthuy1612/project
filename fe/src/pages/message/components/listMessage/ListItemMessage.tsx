@@ -4,48 +4,60 @@ import { Divider } from 'antd';
 import LoadingMessage from '../loading/LoadingMessage';
 import ItemMessage from './itemMessage/ItemMessage';
 import MyMessage from './itemMessage/MyMessage';
-import { IMessage } from '../../../../interface/IDataListFriend';
-import { useAppSelector } from '../../../../lib/hooks';
-import { getMessage } from '../../../../api/chat';
-
+import { useAppDispatch, useAppSelector } from '../../../../lib/hooks';
+import { updateIsLoadingListMessage, updatePageNumberListMessage } from '../../../../lib/features/message';
+import { useMessage } from '../../../../utils/useMessage';
+import { urlImg } from '../../../../api/url';
+import ListAva from './itemMessage/ListAva';
+import { dateFormat, getTick } from '../../../../utils/useTime';
 const ListItemMessage: React.FC = () => {
-  const [loading, setLoading] = React.useState<boolean>(false);
-  const [data, setData] = React.useState<IMessage[]>([]);
 
-  console.log(data);
+  const dispatch = useAppDispatch();
+  const { selectedMessage, listMessage, totalListMessage, listUserInMessageSelected } = useAppSelector(state => state.message);
+  const { id } = useAppSelector(state => state.user);
 
-  const { selectedMessage } = useAppSelector(state => state.message)
+  const { loadMoreDataListMessage } = useMessage();
 
-  const scrollMessageData = (oldData: IMessage[], newData: IMessage[]) => {
-    let indexStart = 0;
-    const resultOldData = oldData.reduce((result: IMessage[], item) => {
-      indexStart++;
-      return [...result, { ...item, ref: false, email: indexStart.toString() }]
-    }, [])
-    const resultNewData = newData.reduce((result: IMessage[], item, index) => {
-      indexStart++;
-      if (!index) {
-        return [...result, { ...item, ref: true, email: indexStart.toString() }]
-      }
-      return [...result, { ...item, ref: false, email: indexStart.toString() }]
-    }, [])
-    return [...resultOldData, ...resultNewData]
-  }
-
-  const loadMoreData = async () => {
-    if (loading) {
-      return;
-    }
-    setLoading(true);
-    if (selectedMessage?.id) {
-      const result = await getMessage({ id: selectedMessage?.id, pageNumber: 1, pageSize: 20 });
-      setLoading(false);
-    }
-  };
 
   React.useEffect(() => {
-    loadMoreData();
-  }, []);
+    dispatch(updateIsLoadingListMessage(false));
+    dispatch(updatePageNumberListMessage(1));
+    loadMoreDataListMessage(true);
+  }, [selectedMessage?.id]);
+
+  const getUrlAva = (from: string | undefined) => {
+    const url = (listUserInMessageSelected ?? []).find(item => item.id === from)?.ava;
+    return url && from ? `${urlImg}${url}` : undefined;
+  }
+
+  const checkShowAva = (index: number): boolean => {
+    const oldDate = getTick(listMessage[index + 1]?.createAt);
+    const newDate = getTick(listMessage[index]?.createAt);
+    if (index === listMessage.length - 1) {
+      return listMessage[index - 1].from === listMessage[index].from;
+    }
+
+    if (!newDate || !oldDate) {
+      return false;
+    }
+
+
+    if (listMessage[index + 1].from !== listMessage[index].from) {
+      return true;
+    }
+
+    return Boolean(oldDate && newDate && newDate - oldDate > 60 * 60 * 1000);
+  };
+
+  const checkShowDate = (index: number) => {
+    const oldDate = getTick(listMessage[index + 1]?.createAt);
+    const newDate = getTick(listMessage[index]?.createAt);
+
+    if (!newDate || !oldDate) {
+      return false;
+    }
+    return Boolean(oldDate && newDate && newDate - oldDate > 60 * 60 * 1000 * 12);
+  }
 
   return (
     <div
@@ -59,29 +71,33 @@ const ListItemMessage: React.FC = () => {
       }}
     >
       <InfiniteScroll
-        dataLength={data.length}
-        next={loadMoreData}
-        hasMore={data.length < 50}
+        dataLength={totalListMessage}
+        next={loadMoreDataListMessage}
+        hasMore={listMessage.length < totalListMessage}
         loader={<LoadingMessage />}
-        endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
+        endMessage={<Divider plain>{listMessage.length ? 'It is all, nothing more 🤐' : 'No messages'}</Divider>}
         style={{ display: 'flex', flexDirection: 'column-reverse' }}
         inverse={true}
         scrollableTarget="scrollableMessage"
       >
-        {data.map((item, index) => (
-          <div key={index}>
-            {index % 2 === 0 ?
-              <ItemMessage
-                message={item.message ?? ''}
-                date={new Date}
-                src={undefined}
+        {listMessage.map((item, index) => (
+          <div key={item.id}>
+            {checkShowDate(index) && <Divider style={{ fontSize: '12px' }}>{dateFormat(item.createAt)}</Divider>}
+            {item.from === id ?
+              <MyMessage
+                message={item.message}
+                date={item.createAt}
+                isShowAva={checkShowAva(index)}
               />
               :
-              <MyMessage
-                message={item.message ?? ''}
-                date={new Date}
+              <ItemMessage
+                message={item.message}
+                date={item.createAt}
+                src={getUrlAva(item?.from)}
+                isShowAva={checkShowAva(index)}
               />
             }
+            <ListAva idChat={item.id} />
           </div>
         ))}
       </InfiniteScroll>

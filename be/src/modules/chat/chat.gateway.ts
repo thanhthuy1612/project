@@ -5,7 +5,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { ChatService } from './chat.service';
-import { MessageDTO } from './chat.dto';
+import { ChatDTO, SocketDTO } from './chat.dto';
 
 @WebSocketGateway(8001, { cors: '*' })
 export class ChatGateway {
@@ -15,20 +15,19 @@ export class ChatGateway {
   constructor(private chatService: ChatService) {}
 
   @SubscribeMessage('message')
-  handleMessage(@MessageBody() message: MessageDTO): void {
-    console.log(message);
-    this.server.emit('message', message);
+  async handleMessage(@MessageBody() body: SocketDTO) {
+    const res = await this.chatService.chatSocket(body);
+    this.server.emit('message', res);
   }
 
   @SubscribeMessage('fetchMessages')
-  async fetchMessages(id: string) {
-    const messages = await this.chatService.findById(id);
-    this.server.emit('messages', messages);
+  async fetchMessages(@MessageBody() body: ChatDTO) {
+    const res = await this.chatService.findMessageByIdChat(
+      body.idChat,
+      body.idUser,
+      body.pageNumber,
+      body.pageSize,
+    );
+    this.server.emit('fetchMessages', res);
   }
-
-  // @SubscribeMessage('message')
-  // handleMessage(client: any, payload: any): string {
-  //   console.log(client, payload);
-  //   return 'Hello world!';
-  // }
 }

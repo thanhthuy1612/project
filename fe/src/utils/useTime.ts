@@ -9,11 +9,20 @@ export const getDateTime = (day: Date) => {
     return day.getTime();
 };
 
-export const dateFormat = (date: Date, format?: DateFormatType) => {
-    let formatDate = format ?? DateFormatType.FullDate;
+export const dateFormat = (date?: Date, formatDate = DateFormatType.FullDate) => {
+    if (!date) {
+        return 'N/A';
+    }
     const time: Date = new Date(date);
     const formattedDate = time.toLocaleString('en-US', getDateFormatByLocale(formatDate));
     return formattedDate;
+};
+
+export const getTick: (date?: Date) => number = (date) => {
+    if (!date) {
+        return 0;
+    }
+    return new Date(date).getTime();
 };
 
 export const getDateFormatByLocale: (format: DateFormatType) => Intl.DateTimeFormatOptions = (format) => {

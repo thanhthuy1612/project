@@ -38,6 +38,11 @@ export const post = async (path: string, options = {}) => {
     return response.data;
 };
 
+export const postAndCheckErrorPage = async (path: string, options = {}) => {
+    const response = await request.post(path, options);
+    return response.data;
+};
+
 export const del = async (path: string, options = {}) => {
     const response = await request.delete(path, options);
     return response.data;

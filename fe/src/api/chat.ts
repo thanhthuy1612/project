@@ -1,4 +1,4 @@
-import { ISearchListChat, ISearchMessage } from '../interface/ISearchListChat';
+import { IChat, ISearchListChat, ISearchMessage } from '../interface/ISearchListChat';
 import { post } from './base';
 import { url } from './url';
 
@@ -13,7 +13,7 @@ export const getListChat = async (item: ISearchListChat) => {
     }
 };
 
-export const getMessage = async (item: ISearchListChat) => {
+export const getMessage = async (item: IChat) => {
     try {
         const res = await post(`${path}/message`, { ...item });
         return { ...res };

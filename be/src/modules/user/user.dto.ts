@@ -20,4 +20,5 @@ export class ChatsDTO {
   id: string;
   userID: string;
   isSendMessage: boolean;
+  isReadAll: boolean;
 }

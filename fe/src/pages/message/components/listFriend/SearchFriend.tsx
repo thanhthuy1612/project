@@ -6,9 +6,9 @@ import { urlImg } from '../../../../api/url';
 import { searchChats } from '../../../../api/user';
 import { ISearchChat } from '../../../../interface/ISearchChat';
 import { useAppDispatch, useAppSelector } from '../../../../lib/hooks';
-import { useDebounce } from '../../../../ultis/useDebounce';
+import { useDebounce } from '../../../../utils/useDebounce';
 import { IStatusCode } from '../../../../interface/IStatusCode';
-import { updateSelectedMessage } from '../../../../lib/features/message';
+import { updateListFriendMessage, updateSelectedMessage } from '../../../../lib/features/message';
 
 const SearchFriend: React.FC = () => {
   const [input, setInput] = React.useState<string>("");
@@ -18,6 +18,8 @@ const SearchFriend: React.FC = () => {
 
 
   const { id } = useAppSelector(state => state.user);
+  const { listFriendMessage } = useAppSelector(state => state.message);
+
   const dispatch = useAppDispatch();
 
   const {
@@ -51,6 +53,10 @@ const SearchFriend: React.FC = () => {
       setInput(item.username);
       const result = await searchFriendChats({ id, idSearch: item.id })
       if (result.statusCode === IStatusCode.SUCCESS) {
+        const checkListFriendMessage = listFriendMessage.filter(item => item.id === result.data.id)
+        if (!checkListFriendMessage.length) {
+          dispatch(updateListFriendMessage([result.data, ...listFriendMessage]))
+        }
         dispatch(updateSelectedMessage(result.data))
       }
       setInput('');
@@ -91,7 +97,13 @@ const SearchFriend: React.FC = () => {
                 style={{ paddingLeft: '16px', paddingRight: '16px', cursor: 'pointer' }}
               >
                 <List.Item.Meta
-                  avatar={<Avatar src={`${urlImg}/${item?.ava}`} icon={<UserOutlined />} />}
+                  avatar={
+                    <Avatar
+                      className=' bg-primaryWhite text-primaryBlueDark ring-primaryBlueDark ring-offset-2 ring-[1px]'
+                      src={`${urlImg}${item?.ava}`}
+                      icon={<UserOutlined />}
+                    />
+                  }
                   title={item.username}
                   description={item.email}
                 />

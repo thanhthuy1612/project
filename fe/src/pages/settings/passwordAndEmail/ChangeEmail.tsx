@@ -2,11 +2,10 @@ import { Button, Form, FormProps, Input } from 'antd';
 import React from 'react';
 import { useAppDispatch, useAppSelector } from '../../../lib/hooks';
 import { changeEmail } from '../../../api/user';
-import { IStatusCode } from '../../../interface/IStatusCode';
 import { resetStateUser, updateUser } from '../../../lib/features/userSlice';
 import { useNavigate } from 'react-router-dom';
-import { updateNotification } from '../../../lib/features/notification';
 import { googleLogout } from '@react-oauth/google';
+import { useNotification } from '../../../utils/useNotification';
 
 type FieldType = {
   email?: string,
@@ -20,6 +19,8 @@ const ChangeEmail: React.FC = () => {
   const { email, havePassword, username } = useAppSelector(state => state.user);
   const navigate = useNavigate();
 
+  const { setNotification } = useNotification();
+
   const onFinish: FormProps<FieldType>["onFinish"] = async (values) => {
     setIsDisable(true)
     if (values?.email && values?.password && username) {
@@ -30,24 +31,16 @@ const ChangeEmail: React.FC = () => {
           username
         }
       );
-      if (res?.statusCode === IStatusCode.SUCCESS) {
-        dispatch(updateUser(res.data))
+      const onSuccess = () => {
+        dispatch(updateUser(res.data));
         googleLogout();
         dispatch(resetStateUser());
         localStorage.clear();
-        navigate('/login')
-        dispatch(updateNotification({
-          type: 'success',
-          description: 'Change email successfully'
-        }))
-      } else {
-        dispatch(updateNotification({
-          type: 'fail',
-          description: res.data
-        }))
+        navigate('/login');
       }
+      setNotification(res, 'Change email successfully', onSuccess);
     }
-    setIsDisable(false)
+    setIsDisable(false);
   };
   return <Form
     name="register"
