@@ -46,7 +46,7 @@ const ListItemMessage: React.FC = () => {
       return true;
     }
 
-    return Boolean(oldDate && newDate && newDate - oldDate > 60 * 60 * 1000);
+    return Boolean(oldDate && newDate && newDate - oldDate > 5 * 60 * 1000);
   };
 
   const checkShowDate = (index: number) => {

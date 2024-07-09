@@ -1,31 +1,18 @@
 import React from "react";
-import { privateRoutes, publicRoutes } from "./routers";
 import { IRouter } from "./interface/IRouter";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import DefaultLayout from "./layouts/DefaultLayout";
+import { routes } from "./routers";
+import CustomLayout from "./layouts/CustomLayout";
 import "./App.css";
-import { useAppSelector } from "./lib/hooks";
+import ErrorExist from "./error/ErrorExist";
 
 const App: React.FC = () => {
-  const [routers, setRouters] = React.useState<IRouter[]>([]);
-  const { username } = useAppSelector(state => state.user)
-
-  const getRouters = React.useCallback(() => {
-    const isLogin: boolean = Boolean(localStorage.getItem('token'))
-    if (!isLogin) {
-      return publicRoutes;
-    }
-    return [...publicRoutes, ...privateRoutes];
-  }, [username]);
-
-  React.useEffect(() => {
-    setRouters(getRouters());
-  }, [getRouters])
 
   return (
     <Router>
       <Routes>
-        {routers.map((route: IRouter) => {
+        {routes.map((route: IRouter) => {
           const Layout = route.layout || DefaultLayout;
           const Page = route.component;
           return (
@@ -33,13 +20,15 @@ const App: React.FC = () => {
               key={route.id}
               path={route.path}
               element={
-                <Layout>
-                  <Page />
-                </Layout>
+                <CustomLayout
+                  isPrivate={Boolean(route?.isPrivate)}
+                  element={<Layout><Page /></Layout>}
+                />
               }
             />
           );
         })}
+        <Route path="*" element={<DefaultLayout><ErrorExist /></DefaultLayout>} />
       </Routes>
     </Router>
   );

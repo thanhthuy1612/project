@@ -1,10 +1,11 @@
-import React from "react";
+import React from 'react';
 
 export interface IRouter {
   id: number;
   path: string;
   component: React.FC;
   layout?: React.FC<{ children: React.ReactNode }>;
+  isPrivate?: boolean;
 }
 
 export enum DateFormatType {

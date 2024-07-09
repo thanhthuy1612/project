@@ -47,8 +47,6 @@ const ButtonLogo: React.FC = () => {
       } else {
         localStorage.clear()
       }
-    } else {
-      navigate('/');
     }
     dispatch(updateIsLoadingPage(false))
   }

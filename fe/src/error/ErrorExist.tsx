@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Result } from 'antd';
 
-const Error: React.FC = () => (
+const ErrorExist: React.FC = () => (
   <Result
     status="404"
     title="404"
@@ -10,4 +10,4 @@ const Error: React.FC = () => (
   />
 );
 
-export default Error;
+export default ErrorExist;
